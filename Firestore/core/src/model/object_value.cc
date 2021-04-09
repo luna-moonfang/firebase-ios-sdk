@@ -167,17 +167,17 @@ void ApplyChanges(
 
 }  // namespace
 
-MutableObjectValue::MutableObjectValue() {
+ObjectValue::ObjectValue() {
   value_->which_value_type = google_firestore_v1_Value_map_value_tag;
   value_->map_value.fields_count = 0;
   value_->map_value.fields = nullptr;
 }
 
-FieldMask MutableObjectValue::ToFieldMask() const {
+FieldMask ObjectValue::ToFieldMask() const {
   return ExtractFieldMask(value_->map_value);
 }
 
-FieldMask MutableObjectValue::ExtractFieldMask(
+FieldMask ObjectValue::ExtractFieldMask(
     const google_firestore_v1_MapValue& value) const {
   std::set<FieldPath> fields;
 
@@ -206,7 +206,7 @@ FieldMask MutableObjectValue::ExtractFieldMask(
   return FieldMask(std::move(fields));
 }
 
-absl::optional<google_firestore_v1_Value> MutableObjectValue::Get(
+absl::optional<google_firestore_v1_Value> ObjectValue::Get(
     const FieldPath& path) const {
   if (path.empty()) {
     return *value_;
@@ -222,7 +222,7 @@ absl::optional<google_firestore_v1_Value> MutableObjectValue::Get(
   return nested_value;
 }
 
-void MutableObjectValue::Set(const FieldPath& path,
+void ObjectValue::Set(const FieldPath& path,
                              const google_firestore_v1_Value& value) {
   HARD_ASSERT(!path.empty(), "Cannot set field for empty path on ObjectValue");
 
@@ -235,8 +235,8 @@ void MutableObjectValue::Set(const FieldPath& path,
   ApplyChanges(parent_map, upserts, /*deletes=*/{});
 }
 
-void MutableObjectValue::SetAll(const FieldMask& field_mask,
-                                const MutableObjectValue& data) {
+void ObjectValue::SetAll(const FieldMask& field_mask,
+                                const ObjectValue& data) {
   FieldPath parent;
 
   std::map<std::string, google_firestore_v1_Value> upserts;
@@ -264,7 +264,7 @@ void MutableObjectValue::SetAll(const FieldMask& field_mask,
   ApplyChanges(parent_map, upserts, deletes);
 }
 
-void MutableObjectValue::Delete(const FieldPath& path) {
+void ObjectValue::Delete(const FieldPath& path) {
   HARD_ASSERT(!path.empty(), "Cannot delete field with empty path");
 
   google_firestore_v1_Value* nested_value = value_.get();
@@ -290,7 +290,7 @@ void MutableObjectValue::Delete(const FieldPath& path) {
  * Returns the map that contains the leaf element of `path`. If the parent
  * entry does not yet exist, or if it is not a map, a new map will be created.
  */
-google_firestore_v1_MapValue* MutableObjectValue::ParentMap(
+google_firestore_v1_MapValue* ObjectValue::ParentMap(
     const FieldPath& path) {
   google_firestore_v1_Value* parent = value_.get();
 
