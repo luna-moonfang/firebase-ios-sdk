@@ -22,7 +22,7 @@
 
 #include "Firestore/core/src/core/filter.h"
 #include "Firestore/core/src/model/field_path.h"
-#include "Firestore/core/src/model/field_value.h"
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 
 namespace firebase {
 namespace firestore {
@@ -114,8 +114,6 @@ class FieldFilter : public Filter {
     friend class FieldFilter;
 
     bool Equals(const Filter::Rep& other) const override;
-
-    bool MatchesValue(const google_firestore_v1_Value& lhs) const;
 
     /** The left hand side of the relation. A path into a document field. */
     model::FieldPath field_;

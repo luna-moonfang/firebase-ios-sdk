@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_CORE_ARRAY_CONTAINS_ANY_FILTER_H_
 #define FIRESTORE_CORE_SRC_CORE_ARRAY_CONTAINS_ANY_FILTER_H_
 
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include <string>
 
 #include "Firestore/core/src/core/field_filter.h"
