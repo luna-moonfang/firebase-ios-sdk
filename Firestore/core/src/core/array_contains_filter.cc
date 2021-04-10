@@ -30,9 +30,6 @@ namespace core {
 using model::Contains;
 using model::Document;
 using model::FieldPath;
-using model::GetTypeOrder;
-using model::TypeOrder;
-
 using Operator = Filter::Operator;
 
 class ArrayContainsFilter::Rep : public FieldFilter::Rep {

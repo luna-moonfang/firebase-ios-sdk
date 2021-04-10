@@ -28,7 +28,6 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
-using google_firestore_v1_Value;
 using model::Document;
 using model::DocumentKey;
 using model::FieldPath;
@@ -37,7 +36,7 @@ using Operator = Filter::Operator;
 
 class KeyFieldNotInFilter::Rep : public FieldFilter::Rep {
  public:
-  Rep(FieldPath field, FieldValue value)
+  Rep(FieldPath field, google_firestore_v1_Value value)
       : FieldFilter::Rep(std::move(field), Operator::NotIn, std::move(value)) {
     KeyFieldInFilter::ValidateArrayValue(this->value());
   }
@@ -49,13 +48,13 @@ class KeyFieldNotInFilter::Rep : public FieldFilter::Rep {
   bool Matches(const model::Document& doc) const override;
 };
 
-KeyFieldNotInFilter::KeyFieldNotInFilter(FieldPath field, FieldValue value)
+KeyFieldNotInFilter::KeyFieldNotInFilter(FieldPath field, google_firestore_v1_Value value)
     : FieldFilter(
           std::make_shared<const Rep>(std::move(field), std::move(value))) {
 }
 
 bool KeyFieldNotInFilter::Rep::Matches(const Document& doc) const {
-  const FieldValue::Array& array_value = value().array_value();
+  const google_firestore_v1_ArrayValue& array_value = value().array_value;
   return !KeyFieldInFilter::Contains(array_value, doc);
 }
 

@@ -21,22 +21,25 @@
 
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/document_key.h"
+#include "Firestore/core/src/model/value_util.h"
+#include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "absl/algorithm/container.h"
 
 namespace firebase {
 namespace firestore {
 namespace core {
 
-using google_firestore_v1_Value;
 using model::Document;
 using model::DocumentKey;
 using model::FieldPath;
+    using model::GetTypeOrder;
+    using model::TypeOrder;
 
 using Operator = Filter::Operator;
 
 class KeyFieldInFilter::Rep : public FieldFilter::Rep {
  public:
-  Rep(FieldPath field, FieldValue value)
+  Rep(FieldPath field, google_firestore_v1_Value value)
       : FieldFilter::Rep(std::move(field), Operator::In, std::move(value)) {
     ValidateArrayValue(this->value());
   }
@@ -48,32 +51,30 @@ class KeyFieldInFilter::Rep : public FieldFilter::Rep {
   bool Matches(const model::Document& doc) const override;
 };
 
-KeyFieldInFilter::KeyFieldInFilter(FieldPath field, FieldValue value)
+KeyFieldInFilter::KeyFieldInFilter(FieldPath field, google_firestore_v1_Value value)
     : FieldFilter(
           std::make_shared<const Rep>(std::move(field), std::move(value))) {
 }
 
 bool KeyFieldInFilter::Rep::Matches(const Document& doc) const {
-  const FieldValue::Array& array_value = value().array_value();
+  const google_firestore_v1_ArrayValue& array_value = value().array_value;
   return Contains(array_value, doc);
 }
 
-bool KeyFieldInFilter::Contains(const FieldValue::Array& array_value,
+bool KeyFieldInFilter::Contains(const google_firestore_v1_ArrayValue& array_value,
                                 const Document& doc) {
-  for (const auto& rhs : array_value) {
-    if (doc.key() == rhs.reference_value().key()) {
-      return true;
-    }
-  }
-  return false;
+  google_firestore_v1_Value reference_value{};
+  reference_value.which_value_type=google_firestore_v1_Value_reference_value_tag;
+  reference_value.reference_value=nanopb::MakeBytesArray(doc.key().ToString());//Verfy
+  return model::Contains(array_value,reference_value);
 }
 
-void KeyFieldInFilter::ValidateArrayValue(const FieldValue& value) {
-  HARD_ASSERT(value.type() == FieldValue::Type::Array,
+void KeyFieldInFilter::ValidateArrayValue(const google_firestore_v1_Value& value) {
+  HARD_ASSERT(GetTypeOrder(value) != TypeOrder::kArray,
               "Comparing on key with In/NotIn, but the value was not an Array");
-  const FieldValue::Array& array_value = value.array_value();
-  for (const auto& ref_value : array_value) {
-    HARD_ASSERT(ref_value.type() == FieldValue::Type::Reference,
+  const google_firestore_v1_ArrayValue& array_value = value.array_value;
+  for (pb_size_t i = 0; i < array_value.values_count; ++i) {
+    HARD_ASSERT(GetTypeOrder(array_value.values[i]) == TypeOrder::kReference,
                 "Comparing on key with In/NotIn, but an array value was not"
                 " a Reference");
   }
