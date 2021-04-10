@@ -27,18 +27,18 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
-    using model::GetTypeOrder;
-    using model::TypeOrder;
+using model::Contains;
 using model::Document;
 using model::FieldPath;
+using model::GetTypeOrder;
+using model::TypeOrder;
 
 using Operator = Filter::Operator;
 
 class ArrayContainsAnyFilter::Rep : public FieldFilter::Rep {
  public:
   Rep(FieldPath field, google_firestore_v1_Value value)
-      : FieldFilter::Rep(
-            std::move(field), Operator::ArrayContainsAny, value) {
+      : FieldFilter::Rep(std::move(field), Operator::ArrayContainsAny, value) {
   }
 
   Type type() const override {
@@ -59,10 +59,10 @@ bool ArrayContainsAnyFilter::Rep::Matches(const Document& doc) const {
   if (!maybe_lhs) return false;
 
   const google_firestore_v1_Value& lhs = *maybe_lhs;
-  if (GetTypeOrder(lhs)!=TypeOrder::kArray) return false;
+  if (GetTypeOrder(lhs) != TypeOrder::kArray) return false;
 
-  for (pb_size_t i=0;i<lhs.array_value.values_count;++i){
-    if (absl::c_linear_search(array_value, lhs.array_value.values [i])) {
+  for (pb_size_t i = 0; i < lhs.array_value.values_count; ++i) {
+    if (Contains(array_value, lhs.array_value.values[i])) {
       return true;
     }
   }

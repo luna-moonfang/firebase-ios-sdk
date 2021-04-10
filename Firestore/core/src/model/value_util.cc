@@ -452,6 +452,22 @@ std::string CanonicalId(const google_firestore_v1_Value& value) {
   }
 }
 
+bool Contains(google_firestore_v1_ArrayValue haystack,
+              google_firestore_v1_Value needle) {
+  for (pb_size_t i = 0; i < haystack.values_count; ++i) {
+    if (Equals(haystack.values[i], needle)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+google_firestore_v1_Value NullValue() {
+  google_firestore_v1_Value null_value{};
+  null_value.which_value_type = google_protobuf_Value_null_value_tag;
+  return null_value;
+}
+
 google_firestore_v1_Value DeepClone(google_firestore_v1_Value source) {
   google_firestore_v1_Value target = source;
   switch (source.which_value_type) {

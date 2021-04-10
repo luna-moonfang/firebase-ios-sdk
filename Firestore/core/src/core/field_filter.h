@@ -20,9 +20,9 @@
 #include <memory>
 #include <string>
 
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/core/filter.h"
 #include "Firestore/core/src/model/field_path.h"
-#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 
 namespace firebase {
 namespace firestore {

@@ -19,8 +19,8 @@
 
 #include <string>
 
-#include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
+#include "Firestore/core/src/core/field_filter.h"
 
 namespace firebase {
 namespace firestore {

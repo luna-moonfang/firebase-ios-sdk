@@ -26,7 +26,7 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
-using google_firestore_v1_Value;
+using model::Contains;
 using model::Document;
 using model::FieldPath;
 
@@ -34,7 +34,7 @@ using Operator = Filter::Operator;
 
 class InFilter::Rep : public FieldFilter::Rep {
  public:
-  Rep(FieldPath field, FieldValue value)
+  Rep(FieldPath field, google_firestore_v1_Value value)
       : FieldFilter::Rep(std::move(field), Operator::In, std::move(value)) {
   }
 
@@ -45,16 +45,16 @@ class InFilter::Rep : public FieldFilter::Rep {
   bool Matches(const model::Document& doc) const override;
 };
 
-InFilter::InFilter(FieldPath field, FieldValue value)
+InFilter::InFilter(FieldPath field, google_firestore_v1_Value value)
     : FieldFilter(
           std::make_shared<const Rep>(std::move(field), std::move(value))) {
 }
 
 bool InFilter::Rep::Matches(const Document& doc) const {
-  const FieldValue::Array& array_value = value().array_value();
-  absl::optional<FieldValue> maybe_lhs = doc.field(field());
+  const google_firestore_v1_ArrayValue& array_value = value().array_value;
+  absl::optional<google_firestore_v1_Value> maybe_lhs = doc.field(field());
   if (!maybe_lhs) return false;
-  return absl::c_linear_search(array_value, *maybe_lhs);
+  return Contains(array_value, *maybe_lhs);
 }
 
 }  // namespace core

@@ -64,6 +64,13 @@ bool Equals(const google_firestore_v1_Value& left,
  */
 std::string CanonicalId(const google_firestore_v1_Value& value);
 
+/** Returns true if the Value list contains the specified element. */
+bool Contains(google_firestore_v1_ArrayValue haystack,
+              google_firestore_v1_Value needle);
+
+/** Returns `null` in its Protobuf representation. */
+google_firestore_v1_Value NullValue();
+
 /** Creates a copy of the contents of the Value proto. */
 google_firestore_v1_Value DeepClone(google_firestore_v1_Value source);
 
