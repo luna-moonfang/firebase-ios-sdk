@@ -40,7 +40,7 @@ class ObjectValueTest : public ::testing::Test {
  public:
   template <typename T>
   google_firestore_v1_Value Wrap(T input) {
-    model::FieldValue fv = Value(input);
+    google_firestore_v1_Value fv = Value(input);
     return serializer.EncodeFieldValue(fv);
   }
 
@@ -55,8 +55,7 @@ class ObjectValueTest : public ::testing::Test {
 };
 
 TEST_F(ObjectValueTest, ExtractsFields) {
-  ObjectValue value =
-      WrapObject("foo", Map("a", 1, "b", true, "c", "string"));
+  ObjectValue value = WrapObject("foo", Map("a", 1, "b", true, "c", "string"));
 
   ASSERT_EQ(google_firestore_v1_Value_map_value_tag,
             value.Get(Field("foo"))->which_value_type);

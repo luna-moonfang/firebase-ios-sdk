@@ -62,20 +62,20 @@ class ServerTimestampTransform::Rep : public TransformOperation::Rep {
     return Type::ServerTimestamp;
   }
 
-  model::FieldValue ApplyToLocalView(
-      const absl::optional<model::FieldValue>& previous_value,
+  google_firestore_v1_Value ApplyToLocalView(
+      const absl::optional<google_firestore_v1_Value>& previous_value,
       const Timestamp& local_write_time) const override {
     return FieldValue::FromServerTimestamp(local_write_time, previous_value);
   }
 
-  model::FieldValue ApplyToRemoteDocument(
-      const absl::optional<model::FieldValue>&,
-      const model::FieldValue& transform_result) const override {
+  google_firestore_v1_Value ApplyToRemoteDocument(
+      const absl::optional<google_firestore_v1_Value>&,
+      const google_firestore_v1_Value& transform_result) const override {
     return transform_result;
   }
 
-  absl::optional<model::FieldValue> ComputeBaseValue(
-      const absl::optional<model::FieldValue>&) const override {
+  absl::optional<google_firestore_v1_Value> ComputeBaseValue(
+      const absl::optional<google_firestore_v1_Value>&) const override {
     // Server timestamps are idempotent and don't require a base value.
     return absl::nullopt;
   }
@@ -110,7 +110,7 @@ static_assert(sizeof(TransformOperation) == sizeof(ArrayTransform),
  */
 class ArrayTransform::Rep : public TransformOperation::Rep {
  public:
-  Rep(Type type, std::vector<model::FieldValue> elements)
+  Rep(Type type, std::vector<google_firestore_v1_Value> elements)
       : type_(type), elements_(std::move(elements)) {
   }
 
@@ -118,28 +118,28 @@ class ArrayTransform::Rep : public TransformOperation::Rep {
     return type_;
   }
 
-  model::FieldValue ApplyToLocalView(
-      const absl::optional<model::FieldValue>& previous_value,
+  google_firestore_v1_Value ApplyToLocalView(
+      const absl::optional<google_firestore_v1_Value>& previous_value,
       const Timestamp&) const override {
     return Apply(previous_value);
   }
 
-  model::FieldValue ApplyToRemoteDocument(
-      const absl::optional<model::FieldValue>& previous_value,
-      const model::FieldValue&) const override {
+  google_firestore_v1_Value ApplyToRemoteDocument(
+      const absl::optional<google_firestore_v1_Value>& previous_value,
+      const google_firestore_v1_Value&) const override {
     // The server just sends null as the transform result for array operations,
     // so we have to calculate a result the same as we do for local
     // applications.
     return Apply(previous_value);
   }
 
-  absl::optional<model::FieldValue> ComputeBaseValue(
-      const absl::optional<model::FieldValue>&) const override {
+  absl::optional<google_firestore_v1_Value> ComputeBaseValue(
+      const absl::optional<google_firestore_v1_Value>&) const override {
     // Array transforms are idempotent and don't require a base value.
     return absl::nullopt;
   }
 
-  const std::vector<model::FieldValue>& elements() const {
+  const std::vector<google_firestore_v1_Value>& elements() const {
     return elements_;
   }
 
@@ -149,7 +149,7 @@ class ArrayTransform::Rep : public TransformOperation::Rep {
 
   std::string ToString() const override;
 
-  static const std::vector<model::FieldValue>& Elements(
+  static const std::vector<google_firestore_v1_Value>& Elements(
       const TransformOperation& op);
 
  private:
@@ -160,14 +160,14 @@ class ArrayTransform::Rep : public TransformOperation::Rep {
    * if it's of type Array and an empty mutable array if it's nil or any other
    * type of FieldValue.
    */
-  static std::vector<model::FieldValue> CoercedFieldValuesArray(
-      const absl::optional<model::FieldValue>& value);
+  static std::vector<google_firestore_v1_Value> CoercedFieldValuesArray(
+      const absl::optional<google_firestore_v1_Value>& value);
 
-  model::FieldValue Apply(
-      const absl::optional<model::FieldValue>& previous_value) const;
+  google_firestore_v1_Value Apply(
+      const absl::optional<google_firestore_v1_Value>& previous_value) const;
 
   Type type_;
-  std::vector<model::FieldValue> elements_;
+  std::vector<google_firestore_v1_Value> elements_;
 };
 
 namespace {
@@ -179,7 +179,7 @@ constexpr bool IsArrayTransform(Type type) {
 }  // namespace
 
 ArrayTransform::ArrayTransform(Type type,
-                               std::vector<model::FieldValue> elements)
+                               std::vector<google_firestore_v1_Value> elements)
     : TransformOperation(
           std::make_shared<const Rep>(type, std::move(elements))) {
   HARD_ASSERT(IsArrayTransform(type), "Expected array transform type; got %s",
@@ -231,7 +231,7 @@ std::string ArrayTransform::Rep::ToString() const {
 }
 
 FieldValue::Array ArrayTransform::Rep::CoercedFieldValuesArray(
-    const absl::optional<model::FieldValue>& value) {
+    const absl::optional<google_firestore_v1_Value>& value) {
   if (value && value->type() == FieldValue::Type::Array) {
     return value->array_value();
   } else {
@@ -270,27 +270,29 @@ static_assert(sizeof(TransformOperation) == sizeof(NumericIncrementTransform),
 
 class NumericIncrementTransform::Rep : public TransformOperation::Rep {
  public:
-  explicit Rep(model::FieldValue operand) : operand_(std::move(operand)) {
+  explicit Rep(google_firestore_v1_Value operand)
+      : operand_(std::move(operand)) {
   }
 
   Type type() const override {
     return Type::Increment;
   }
 
-  model::FieldValue ApplyToLocalView(
-      const absl::optional<model::FieldValue>& previous_value,
+  google_firestore_v1_Value ApplyToLocalView(
+      const absl::optional<google_firestore_v1_Value>& previous_value,
       const Timestamp& local_write_time) const override;
 
-  model::FieldValue ApplyToRemoteDocument(
-      const absl::optional<model::FieldValue>&,
-      const model::FieldValue& transform_result) const override {
+  google_firestore_v1_Value ApplyToRemoteDocument(
+      const absl::optional<google_firestore_v1_Value>&,
+      const google_firestore_v1_Value& transform_result) const override {
     return transform_result;
   }
 
-  absl::optional<model::FieldValue> ComputeBaseValue(
-      const absl::optional<model::FieldValue>& previous_value) const override;
+  absl::optional<google_firestore_v1_Value> ComputeBaseValue(
+      const absl::optional<google_firestore_v1_Value>& previous_value)
+      const override;
 
-  model::FieldValue operand() const {
+  google_firestore_v1_Value operand() const {
     return operand_;
   }
 
@@ -307,7 +309,7 @@ class NumericIncrementTransform::Rep : public TransformOperation::Rep {
  private:
   friend class NumericIncrementTransform;
 
-  model::FieldValue operand_;
+  google_firestore_v1_Value operand_;
 };
 
 NumericIncrementTransform::NumericIncrementTransform(FieldValue operand)

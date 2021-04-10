@@ -187,7 +187,7 @@ class ArrayTransform : public TransformOperation {
 
   ArrayTransform() = default;
 
-  const std::vector<model::FieldValue>& elements() const;
+  const std::vector<google_firestore_v1_Value>& elements() const;
 
  private:
   class Rep;

@@ -59,6 +59,7 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+using google_firestore_v1_Value;
 using core::Bound;
 using core::CollectionGroupId;
 using core::Direction;
@@ -81,7 +82,6 @@ using model::DocumentState;
 using model::FieldMask;
 using model::FieldPath;
 using model::FieldTransform;
-using model::FieldValue;
 using model::MaybeDocument;
 using model::Mutation;
 using model::MutationResult;

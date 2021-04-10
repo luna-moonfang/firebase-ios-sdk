@@ -56,7 +56,7 @@ class ValueUtilTest : public ::testing::Test {
  public:
   template <typename T>
   google_firestore_v1_Value Wrap(T input) {
-    model::FieldValue fv = Value(input);
+    google_firestore_v1_Value fv = Value(input);
     return serializer.EncodeFieldValue(fv);
   }
 
@@ -69,7 +69,7 @@ class ValueUtilTest : public ::testing::Test {
 
   template <typename... Args>
   google_firestore_v1_Value WrapArray(Args&&... values) {
-    std::vector<model::FieldValue> contents{
+    std::vector<google_firestore_v1_Value> contents{
         Value(std::forward<Args>(values))...};
     FieldValue fv = FieldValue::FromArray(std::move(contents));
     return serializer.EncodeFieldValue(fv);
@@ -85,7 +85,7 @@ class ValueUtilTest : public ::testing::Test {
   }
 
   google_firestore_v1_Value WrapServerTimestamp(
-      const model::FieldValue& input) {
+      const google_firestore_v1_Value& input) {
     // TODO(mrschmidt): Replace with EncodeFieldValue encoding when available
     return WrapObject("__type__", "server_timestamp", "__local_write_time__",
                       input.server_timestamp_value().local_write_time());

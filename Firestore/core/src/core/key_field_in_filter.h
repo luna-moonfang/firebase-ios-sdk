@@ -32,15 +32,15 @@ namespace core {
  */
 class KeyFieldInFilter : public FieldFilter {
  public:
-  KeyFieldInFilter(model::FieldPath field, model::FieldValue value);
+  KeyFieldInFilter(model::FieldPath field, google_firestore_v1_Value value);
 
  private:
   class Rep;
 
-  static bool Contains(const model::FieldValue::Array& array_value,
+  static bool Contains(const google_firestore_v1_Value::Array& array_value,
                        const model::Document& doc);
 
-  static void ValidateArrayValue(const model::FieldValue& value);
+  static void ValidateArrayValue(const google_firestore_v1_Value& value);
 
   friend class KeyFieldNotInFilter;
 };

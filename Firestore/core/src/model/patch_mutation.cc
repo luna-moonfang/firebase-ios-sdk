@@ -74,8 +74,7 @@ PatchMutation::Rep::Rep(DocumentKey&& key,
 }
 
 MaybeDocument PatchMutation::Rep::ApplyToRemoteDocument(
-    const absl::optional<MaybeDocument>& maybe_doc,
-    const MutationResult& mutation_result) const {
+    Document* document, const MutationResult& mutation_result) const {
   VerifyKeyMatches(maybe_doc);
 
   if (!precondition().IsValidFor(maybe_doc)) {
@@ -99,8 +98,7 @@ MaybeDocument PatchMutation::Rep::ApplyToRemoteDocument(
 }
 
 absl::optional<MaybeDocument> PatchMutation::Rep::ApplyToLocalView(
-    const absl::optional<MaybeDocument>& maybe_doc,
-    const Timestamp& local_write_time) const {
+    Document* document, const Timestamp& local_write_time) const {
   VerifyKeyMatches(maybe_doc);
 
   if (!precondition().IsValidFor(maybe_doc)) {
@@ -117,7 +115,7 @@ absl::optional<MaybeDocument> PatchMutation::Rep::ApplyToLocalView(
 }
 
 ObjectValue PatchMutation::Rep::PatchDocument(
-    const absl::optional<MaybeDocument>& maybe_doc,
+    Document* document,
     const std::vector<FieldValue>& transform_results) const {
   ObjectValue data;
   if (maybe_doc && maybe_doc->type() == MaybeDocument::Type::Document) {

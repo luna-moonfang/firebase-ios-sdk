@@ -21,6 +21,9 @@
 #include "Firestore/core/src/core/order_by.h"
 #include "Firestore/core/src/immutable/append_only_list.h"
 #include "Firestore/core/src/model/document.h"
+#include "Firestore/core/src/model/document_key.h"
+#include "Firestore/core/src/model/value_util.h"
+#include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/util/hashing.h"
 #include "Firestore/core/src/util/to_string.h"
 
@@ -28,8 +31,11 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
+using model::Compare;
+using model::DocumentKey;
 using model::FieldPath;
-using model::FieldValue;
+using model::GetTypeOrder;
+using model::TypeOrder;
 using util::ComparisonResult;
 
 bool Bound::SortsBeforeDocument(const OrderByList& order_by,
@@ -39,25 +45,26 @@ bool Bound::SortsBeforeDocument(const OrderByList& order_by,
 
   ComparisonResult result = ComparisonResult::Same;
   for (size_t idx = 0; idx < position_.size(); ++idx) {
-    const FieldValue& field_value = position_[idx];
+    const google_firestore_v1_Value& field_value = position_[idx];
     const OrderBy& ordering_component = order_by[idx];
 
     ComparisonResult comparison;
     if (ordering_component.field() == FieldPath::KeyFieldPath()) {
       HARD_ASSERT(
-          field_value.type() == FieldValue::Type::Reference,
+          GetTypeOrder(field_value) == TypeOrder ::kReference,
           "Bound has a non-key value where the key path is being used %s",
           field_value.ToString());
-      const auto& ref = field_value.reference_value();
+      const auto& ref = DocumentKey::FromName(
+          nanopb::MakeStringView(field_value.reference_value));
       comparison = ref.key().CompareTo(document.key());
 
     } else {
-      absl::optional<FieldValue> doc_value =
+      absl::optional<google_firestore_v1_Value> doc_value =
           document.field(ordering_component.field());
       HARD_ASSERT(
           doc_value.has_value(),
           "Field should exist since document matched the orderBy already.");
-      comparison = field_value.CompareTo(*doc_value);
+      comparison = Compare(field_value, *doc_value);
     }
 
     comparison = ordering_component.direction().ApplyTo(comparison);
@@ -73,7 +80,7 @@ bool Bound::SortsBeforeDocument(const OrderByList& order_by,
 
 std::string Bound::CanonicalId() const {
   std::string result = before_ ? "b:" : "a:";
-  for (const FieldValue& component : position_) {
+  for (const google_firestore_v1_Value& component : position_) {
     result.append(component.ToString());
   }
   return result;

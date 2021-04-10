@@ -79,7 +79,7 @@ using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldPath;
-using firebase::firestore::model::FieldValue;
+using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::util::MakeNSError;
 using firebase::firestore::util::MakeString;

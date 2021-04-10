@@ -22,8 +22,8 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/core/core_fwd.h"
-#include "Firestore/core/src/model/field_value.h"
 #include "Firestore/core/src/model/model_fwd.h"
 
 namespace firebase {
@@ -53,14 +53,14 @@ class Bound {
    * @param is_before Whether this bound is just before or just after the
    *     position.
    */
-  Bound(std::vector<model::FieldValue> position, bool is_before)
+  Bound(std::vector<google_firestore_v1_Value> position, bool is_before)
       : position_(std::move(position)), before_(is_before) {
   }
 
   /**
    * The index position of this bound represented as an array of field values.
    */
-  const std::vector<model::FieldValue>& position() const {
+  const std::vector<google_firestore_v1_Value>& position() const {
     return position_;
   }
 
@@ -83,7 +83,7 @@ class Bound {
   size_t Hash() const;
 
  private:
-  std::vector<model::FieldValue> position_;
+  std::vector<google_firestore_v1_Value> position_;
   bool before_;
 };
 

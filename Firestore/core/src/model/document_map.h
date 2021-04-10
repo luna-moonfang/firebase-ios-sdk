@@ -22,7 +22,6 @@
 #include "Firestore/core/src/immutable/sorted_map.h"
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/document_key.h"
-#include "Firestore/core/src/model/maybe_document.h"
 #include "absl/base/attributes.h"
 #include "absl/types/optional.h"
 

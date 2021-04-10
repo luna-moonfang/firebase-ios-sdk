@@ -38,7 +38,7 @@ using firebase::firestore::api::MakeTimestamp;
 using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldPath;
-using firebase::firestore::model::FieldValue;
+using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::model::FieldTransform;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::PatchMutation;

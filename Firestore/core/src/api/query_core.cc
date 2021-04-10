@@ -41,6 +41,7 @@ namespace firestore {
 namespace api {
 
 namespace util = firebase::firestore::util;
+using google_firestore_v1_Value;
 using core::AsyncEventListener;
 using core::Bound;
 using core::Direction;
@@ -54,7 +55,6 @@ using core::QueryListener;
 using core::ViewSnapshot;
 using model::DocumentKey;
 using model::FieldPath;
-using model::FieldValue;
 using model::ResourcePath;
 using util::Status;
 using util::StatusOr;
@@ -378,7 +378,7 @@ void Query::ValidateHasExplicitOrderByForLimitToLast() const {
 }
 
 void Query::ValidateDisjunctiveFilterElements(
-    const model::FieldValue& field_value, Operator op) const {
+    const google_firestore_v1_Value& field_value, Operator op) const {
   HARD_ASSERT(
       field_value.type() == FieldValue::Type::Array,
       "A FieldValue of Array type is required for disjunctive filters.");
@@ -397,7 +397,7 @@ void Query::ValidateDisjunctiveFilterElements(
 }
 
 FieldValue Query::ParseExpectedReferenceValue(
-    const model::FieldValue& field_value,
+    const google_firestore_v1_Value& field_value,
     const std::function<std::string()>& type_describer) const {
   if (field_value.type() == FieldValue::Type::String) {
     const std::string& document_key = field_value.string_value();

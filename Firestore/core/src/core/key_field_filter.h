@@ -32,7 +32,7 @@ class KeyFieldFilter : public FieldFilter {
  public:
   KeyFieldFilter(model::FieldPath field,
                  core::Filter::Operator op,
-                 model::FieldValue value);
+                 google_firestore_v1_Value value);
 
  private:
   class Rep;

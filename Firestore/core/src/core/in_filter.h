@@ -36,7 +36,7 @@ namespace core {
  */
 class InFilter : public FieldFilter {
  public:
-  InFilter(model::FieldPath field, model::FieldValue value);
+  InFilter(model::FieldPath field, google_firestore_v1_Value value);
 
  private:
   class Rep;

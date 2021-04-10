@@ -49,6 +49,7 @@ namespace firebase {
 namespace firestore {
 namespace testutil {
 
+using google_firestore_v1_Value;
 using model::Document;
 using model::DocumentComparator;
 using model::DocumentSet;
@@ -56,7 +57,6 @@ using model::DocumentState;
 using model::FieldMask;
 using model::FieldPath;
 using model::FieldTransform;
-using model::FieldValue;
 using model::ObjectValue;
 using model::Precondition;
 using model::TransformOperation;
@@ -117,7 +117,7 @@ FieldValue Value(const FieldValue::Map& value) {
   return Value(model::ObjectValue::FromMap(value));
 }
 
-model::ObjectValue WrapObject(const model::FieldValue::Map& value) {
+model::ObjectValue WrapObject(const google_firestore_v1_Value::Map& value) {
   return model::ObjectValue::FromMap(value);
 }
 
@@ -158,13 +158,13 @@ model::SnapshotVersion Version(int64_t version) {
 
 model::Document Doc(absl::string_view key,
                     int64_t version,
-                    const model::FieldValue::Map& data) {
+                    const google_firestore_v1_Value::Map& data) {
   return Doc(key, version, data, DocumentState::kSynced);
 }
 
 model::Document Doc(absl::string_view key,
                     int64_t version,
-                    const model::FieldValue::Map& data,
+                    const google_firestore_v1_Value::Map& data,
                     model::DocumentState document_state) {
   return model::Document(model::ObjectValue::FromMap(data), Key(key),
                          Version(version), document_state);
@@ -310,7 +310,7 @@ core::Query CollectionGroupQuery(absl::string_view collection_id) {
 // UserDataWriter changes are ported from Web and Android.
 model::SetMutation SetMutation(
     absl::string_view path,
-    const model::FieldValue::Map& values,
+    const google_firestore_v1_Value::Map& values,
     std::vector<std::pair<std::string, TransformOperation>> transforms) {
   std::vector<FieldTransform> field_transforms;
   for (auto&& pair : transforms) {

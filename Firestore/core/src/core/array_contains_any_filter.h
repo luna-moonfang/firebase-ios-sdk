@@ -36,7 +36,8 @@ namespace core {
  */
 class ArrayContainsAnyFilter : public FieldFilter {
  public:
-  ArrayContainsAnyFilter(model::FieldPath field, model::FieldValue value);
+  ArrayContainsAnyFilter(model::FieldPath field,
+                         google_firestore_v1_Value value);
 
  private:
   class Rep;

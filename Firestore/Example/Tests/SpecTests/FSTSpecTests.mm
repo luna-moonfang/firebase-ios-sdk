@@ -91,7 +91,7 @@ using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentState;
-using firebase::firestore::model::FieldValue;
+using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::model::MaybeDocument;
 using firebase::firestore::model::MutationResult;
 using firebase::firestore::model::NoDocument;

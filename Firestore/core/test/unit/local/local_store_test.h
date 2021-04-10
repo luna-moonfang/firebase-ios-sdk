@@ -87,9 +87,9 @@ class LocalStoreTest : public ::testing::TestWithParam<FactoryFunc> {
 
   void ApplyRemoteEvent(const remote::RemoteEvent& event);
   void NotifyLocalViewChanges(LocalViewChanges changes);
-  void AcknowledgeMutationWithVersion(
-      int64_t document_version,
-      absl::optional<model::FieldValue> transform_result = absl::nullopt);
+  void AcknowledgeMutationWithVersion(int64_t document_version,
+                                      absl::optional<google_firestore_v1_Value>
+                                          transform_result = absl::nullopt);
   void RejectMutation();
   model::TargetId AllocateQuery(core::Query query);
   local::TargetData GetTargetData(const core::Query& query);

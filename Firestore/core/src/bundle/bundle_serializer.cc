@@ -43,6 +43,7 @@ namespace firestore {
 namespace bundle {
 namespace {
 
+using google_firestore_v1_Value;
 using absl::Time;
 using core::Bound;
 using core::Direction;
@@ -58,7 +59,6 @@ using immutable::AppendOnlyList;
 using model::Document;
 using model::DocumentKey;
 using model::FieldPath;
-using model::FieldValue;
 using model::ObjectValue;
 using model::ResourcePath;
 using model::SnapshotVersion;

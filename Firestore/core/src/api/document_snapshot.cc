@@ -26,10 +26,10 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
+using google_firestore_v1_Value;
 using model::Document;
 using model::DocumentKey;
 using model::FieldPath;
-using model::FieldValue;
 using model::ObjectValue;
 
 DocumentSnapshot DocumentSnapshot::FromDocument(

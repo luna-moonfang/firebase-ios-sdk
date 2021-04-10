@@ -48,6 +48,7 @@ namespace firestore {
 namespace local {
 namespace {
 
+using google_firestore_v1_Value;
 using bundle::BundledQuery;
 using bundle::BundleMetadata;
 using bundle::NamedQuery;
@@ -55,7 +56,6 @@ using core::Target;
 using model::Document;
 using model::DocumentState;
 using model::FieldTransform;
-using model::FieldValue;
 using model::MaybeDocument;
 using model::Mutation;
 using model::MutationBatch;

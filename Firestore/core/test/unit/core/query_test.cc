@@ -33,11 +33,11 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
+using google_firestore_v1_Value;
 using firebase::firestore::util::ComparisonResult;
 using model::Document;
 using model::DocumentComparator;
 using model::FieldPath;
-using model::FieldValue;
 using model::ResourcePath;
 
 using testing::AssertionResult;

@@ -38,8 +38,8 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
+using google_firestore_v1_Value;
 using model::FieldPath;
-using model::FieldValue;
 using util::ComparisonResult;
 using util::ThrowInvalidArgument;
 

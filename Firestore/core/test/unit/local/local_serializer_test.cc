@@ -59,6 +59,7 @@ namespace local {
 namespace {
 
 namespace v1 = google::firestore::v1;
+using google_firestore_v1_Value;
 using bundle::BundledQuery;
 using bundle::NamedQuery;
 using core::Query;
@@ -70,7 +71,6 @@ using model::DocumentKey;
 using model::DocumentState;
 using model::FieldMask;
 using model::FieldPath;
-using model::FieldValue;
 using model::ListenSequenceNumber;
 using model::MaybeDocument;
 using model::Mutation;

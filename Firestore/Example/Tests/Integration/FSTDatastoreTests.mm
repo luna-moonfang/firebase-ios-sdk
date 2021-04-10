@@ -70,7 +70,7 @@ using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
-using firebase::firestore::model::FieldValue;
+using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::model::MutationBatch;
 using firebase::firestore::model::MutationBatchResult;
 using firebase::firestore::model::Precondition;

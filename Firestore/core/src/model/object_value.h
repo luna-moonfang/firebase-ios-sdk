@@ -42,8 +42,7 @@ class ObjectValue {
   ObjectValue();
 
   /** Creates a new MutableObjectValue and takes ownership of `value`. */
-  explicit ObjectValue(const google_firestore_v1_Value& value)
-      : value_(value) {
+  explicit ObjectValue(const google_firestore_v1_Value& value) : value_(value) {
     HARD_ASSERT(
         value.which_value_type == google_firestore_v1_Value_map_value_tag,
         "ObjectValues should be backed by a MapValue");
@@ -66,6 +65,11 @@ class ObjectValue {
    * @return The value at the path or null if it doesn't exist.
    */
   absl::optional<google_firestore_v1_Value> Get(const FieldPath& path) const;
+
+  /**
+   * Returns the ObjectValue in its Protobuf representation.
+   */
+  google_firestore_v1_Value Get() const;
 
   /**
    * Sets the field to the provided value.
@@ -93,8 +97,9 @@ class ObjectValue {
    */
   void Delete(const FieldPath& path);
 
-  friend bool operator==(const ObjectValue& lhs,
-                         const ObjectValue& rhs);
+  std::string ToString() const;
+
+  friend bool operator==(const ObjectValue& lhs, const ObjectValue& rhs);
   friend std::ostream& operator<<(std::ostream& out,
                                   const ObjectValue& object_value);
 
@@ -111,8 +116,7 @@ class ObjectValue {
   nanopb::Message<google_firestore_v1_Value> value_;
 };
 
-inline bool operator==(const ObjectValue& lhs,
-                       const ObjectValue& rhs) {
+inline bool operator==(const ObjectValue& lhs, const ObjectValue& rhs) {
   return *lhs.value_ == *rhs.value_;
 }
 

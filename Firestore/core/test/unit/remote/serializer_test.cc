@@ -74,6 +74,7 @@ namespace remote {
 namespace {
 
 namespace v1 = google::firestore::v1;
+using google_firestore_v1_Value;
 using core::Bound;
 using core::FilterList;
 using google::protobuf::util::MessageDifferencer;
@@ -85,7 +86,6 @@ using model::DeleteMutation;
 using model::Document;
 using model::DocumentKey;
 using model::FieldPath;
-using model::FieldValue;
 using model::MaybeDocument;
 using model::Mutation;
 using model::MutationResult;

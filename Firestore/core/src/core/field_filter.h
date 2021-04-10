@@ -44,7 +44,7 @@ class FieldFilter : public Filter {
    */
   static FieldFilter Create(model::FieldPath path,
                             Operator op,
-                            model::FieldValue value_rhs);
+                            google_firestore_v1_Value value_rhs);
 
   explicit FieldFilter(const Filter& filter);
 
@@ -56,7 +56,7 @@ class FieldFilter : public Filter {
     return field_filter_rep().op_;
   }
 
-  const model::FieldValue& value() const {
+  const google_firestore_v1_Value& value() const {
     return field_filter_rep().value_rhs_;
   }
 
@@ -81,7 +81,7 @@ class FieldFilter : public Filter {
       return op_;
     }
 
-    const model::FieldValue& value() const {
+    const google_firestore_v1_Value& value() const {
       return value_rhs_;
     }
 
@@ -104,7 +104,9 @@ class FieldFilter : public Filter {
      * @param value_rhs A constant value to compare `field` to. The RHS of the
      *     expression.
      */
-    Rep(model::FieldPath field, Operator op, model::FieldValue value_rhs);
+    Rep(model::FieldPath field,
+        Operator op,
+        google_firestore_v1_Value value_rhs);
 
     bool MatchesComparison(util::ComparisonResult result) const;
 
@@ -113,7 +115,7 @@ class FieldFilter : public Filter {
 
     bool Equals(const Filter::Rep& other) const override;
 
-    bool MatchesValue(const model::FieldValue& lhs) const;
+    bool MatchesValue(const google_firestore_v1_Value& lhs) const;
 
     /** The left hand side of the relation. A path into a document field. */
     model::FieldPath field_;
@@ -122,7 +124,7 @@ class FieldFilter : public Filter {
     Operator op_;
 
     /** The right hand side of the relation. A constant value to compare to. */
-    model::FieldValue value_rhs_;
+    google_firestore_v1_Value value_rhs_;
   };
 
   explicit FieldFilter(std::shared_ptr<const Filter::Rep> rep);

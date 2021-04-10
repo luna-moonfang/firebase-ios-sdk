@@ -122,13 +122,13 @@ class Serializer {
    * @brief Converts the FieldValue model passed into bytes.
    */
   google_firestore_v1_Value EncodeFieldValue(
-      const model::FieldValue& field_value) const;
+      const google_firestore_v1_Value& field_value) const;
 
   /**
    * @brief Converts from nanopb proto to the model FieldValue format.
    */
   // TODO(wuandy): all `context` here should be mutable reference instead.
-  model::FieldValue DecodeFieldValue(
+  google_firestore_v1_Value DecodeFieldValue(
       util::ReadContext* context, const google_firestore_v1_Value& proto) const;
 
   /**
@@ -209,8 +209,8 @@ class Serializer {
                                  const google_type_LatLng& latlng_proto);
 
   google_firestore_v1_ArrayValue EncodeArray(
-      const std::vector<model::FieldValue>& array_value) const;
-  std::vector<model::FieldValue> DecodeArray(
+      const std::vector<google_firestore_v1_Value>& array_value) const;
+  std::vector<google_firestore_v1_Value> DecodeArray(
       util::ReadContext* context,
       const google_firestore_v1_ArrayValue& array_proto) const;
 
@@ -265,8 +265,8 @@ class Serializer {
 
   bool IsLocalResourceName(const model::ResourcePath& path) const;
 
-  model::FieldValue DecodeReference(util::ReadContext* context,
-                                    absl::string_view reference_value) const;
+  google_firestore_v1_Value DecodeReference(
+      util::ReadContext* context, absl::string_view reference_value) const;
 
  private:
   google_firestore_v1_Value EncodeNull() const;
@@ -277,7 +277,7 @@ class Serializer {
   google_firestore_v1_Value EncodeStringValue(const std::string& value) const;
   google_firestore_v1_Value EncodeBlob(const nanopb::ByteString& value) const;
   google_firestore_v1_Value EncodeReference(
-      const model::FieldValue::Reference& value) const;
+      const google_firestore_v1_Value::Reference& value) const;
   google_firestore_v1_Value EncodeGeoPoint(const GeoPoint& value) const;
 
   model::Document DecodeFoundDocument(
@@ -304,18 +304,18 @@ class Serializer {
   model::DocumentKey DecodeKey(util::ReadContext* context,
                                const model::ResourcePath& resource_name) const;
 
-  model::FieldValue::Map::value_type DecodeFieldsEntry(
+  google_firestore_v1_Value::Map::value_type DecodeFieldsEntry(
       util::ReadContext* context,
       const google_firestore_v1_Document_FieldsEntry& fields) const;
 
-  model::FieldValue::Map DecodeMapValue(
+  google_firestore_v1_Value::Map DecodeMapValue(
       util::ReadContext* context,
       const google_firestore_v1_MapValue& map_value) const;
 
   model::DatabaseId DecodeDatabaseId(
       util::ReadContext* context,
       const model::ResourcePath& resource_name) const;
-  model::FieldValue DecodeReference(
+  google_firestore_v1_Value DecodeReference(
       util::ReadContext* context,
       const pb_bytes_array_t* resource_name_raw) const;
 

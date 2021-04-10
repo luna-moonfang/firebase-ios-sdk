@@ -31,7 +31,7 @@ namespace core {
  */
 class NotInFilter : public FieldFilter {
  public:
-  NotInFilter(model::FieldPath field, model::FieldValue value);
+  NotInFilter(model::FieldPath field, google_firestore_v1_Value value);
 
  private:
   class Rep;

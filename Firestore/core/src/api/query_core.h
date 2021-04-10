@@ -93,7 +93,7 @@ class Query {
    */
   Query Filter(model::FieldPath field_path,
                core::Filter::Operator op,
-               model::FieldValue field_value,
+               google_firestore_v1_Value field_value,
                const std::function<std::string()>& type_describer) const;
 
   /**
@@ -180,16 +180,17 @@ class Query {
    * Validates that the value passed into a disjunctive filter satisfies all
    * array requirements.
    */
-  void ValidateDisjunctiveFilterElements(const model::FieldValue& field_value,
-                                         core::Filter::Operator op) const;
+  void ValidateDisjunctiveFilterElements(
+      const google_firestore_v1_Value& field_value,
+      core::Filter::Operator op) const;
 
   /**
    * Parses the given FieldValue into a Reference, throwing appropriate errors
    * if the value is anything other than a Reference or String, or if the string
    * is malformed.
    */
-  model::FieldValue ParseExpectedReferenceValue(
-      const model::FieldValue& field_value,
+  google_firestore_v1_Value ParseExpectedReferenceValue(
+      const google_firestore_v1_Value& field_value,
       const std::function<std::string()>& type_describer) const;
 
   std::string Describe(core::Filter::Operator op) const;

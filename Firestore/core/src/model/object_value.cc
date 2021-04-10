@@ -222,8 +222,12 @@ absl::optional<google_firestore_v1_Value> ObjectValue::Get(
   return nested_value;
 }
 
+google_firestore_v1_Value ObjectValue::Get() const {
+  return *value_;
+}
+
 void ObjectValue::Set(const FieldPath& path,
-                             const google_firestore_v1_Value& value) {
+                      const google_firestore_v1_Value& value) {
   HARD_ASSERT(!path.empty(), "Cannot set field for empty path on ObjectValue");
 
   google_firestore_v1_MapValue* parent_map = ParentMap(path.PopLast());
@@ -235,8 +239,7 @@ void ObjectValue::Set(const FieldPath& path,
   ApplyChanges(parent_map, upserts, /*deletes=*/{});
 }
 
-void ObjectValue::SetAll(const FieldMask& field_mask,
-                                const ObjectValue& data) {
+void ObjectValue::SetAll(const FieldMask& field_mask, const ObjectValue& data) {
   FieldPath parent;
 
   std::map<std::string, google_firestore_v1_Value> upserts;
@@ -286,12 +289,14 @@ void ObjectValue::Delete(const FieldPath& path) {
   }
 }
 
+std::string ObjectValue::ToString() const {
+  return CanonicalId(*value_);
+}
 /**
  * Returns the map that contains the leaf element of `path`. If the parent
  * entry does not yet exist, or if it is not a map, a new map will be created.
  */
-google_firestore_v1_MapValue* ObjectValue::ParentMap(
-    const FieldPath& path) {
+google_firestore_v1_MapValue* ObjectValue::ParentMap(const FieldPath& path) {
   google_firestore_v1_Value* parent = value_.get();
 
   // Find a or create a parent map entry for `path`.

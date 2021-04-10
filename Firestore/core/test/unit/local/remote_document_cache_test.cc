@@ -38,12 +38,12 @@ namespace firestore {
 namespace local {
 namespace {
 
+using google_firestore_v1_Value;
 using model::Document;
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::DocumentMap;
 using model::DocumentState;
-using model::FieldValue;
 using model::MaybeDocument;
 using model::MaybeDocumentMap;
 using model::NoDocument;
