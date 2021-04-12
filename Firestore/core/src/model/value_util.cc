@@ -468,7 +468,7 @@ google_firestore_v1_Value NullValue() {
   return null_value;
 }
 
-google_firestore_v1_Value DeepClone(google_firestore_v1_Value source) {
+google_firestore_v1_Value DeepClone(const google_firestore_v1_Value& source) {
   google_firestore_v1_Value target = source;
   switch (source.which_value_type) {
     case google_firestore_v1_Value_string_value_tag:

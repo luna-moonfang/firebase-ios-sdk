@@ -24,6 +24,7 @@
 #include <vector>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
+#include "Firestore/core/src/nanopb/message.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -139,7 +140,7 @@ class TransformOperation {
 
     virtual google_firestore_v1_Value ApplyToRemoteDocument(
         const absl::optional<google_firestore_v1_Value>& previous_value,
-        const FieldValue& transform_result) const = 0;
+        const google_firestore_v1_Value& transform_result) const = 0;
 
     virtual absl::optional<google_firestore_v1_Value> ComputeBaseValue(
         const absl::optional<google_firestore_v1_Value>& previous_value) const = 0;
@@ -176,7 +177,7 @@ class ServerTimestampTransform : public TransformOperation {
  */
 class ArrayTransform : public TransformOperation {
  public:
-  ArrayTransform(Type type, std::vector<google_firestore_v1_Value> elements);
+  ArrayTransform(Type type, std::vector<nanopb::Message<google_firestore_v1_Value>> elements);
 
   /**
    * Casts a TransformOperation to an ArrayTransform. This is a checked

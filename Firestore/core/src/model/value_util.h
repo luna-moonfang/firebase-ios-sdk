@@ -72,7 +72,28 @@ bool Contains(google_firestore_v1_ArrayValue haystack,
 google_firestore_v1_Value NullValue();
 
 /** Creates a copy of the contents of the Value proto. */
-google_firestore_v1_Value DeepClone(google_firestore_v1_Value source);
+google_firestore_v1_Value DeepClone(const google_firestore_v1_Value& source);
+
+/** Returns true if `value` is a INTEGER_VALUE. */
+inline bool IsInteger(const absl::optional<google_firestore_v1_Value>& value) {
+    return value  && value->which_value_type == google_firestore_v1_Value_integer_value_tag;
+}
+
+    /** Returns true if `value` is a DOUBLE_VALUE. */
+    inline     bool IsDouble(const absl::optional<google_firestore_v1_Value>& value) {
+    return value && value->which_value_type  == google_firestore_v1_Value_double_value_tag;
+}
+
+    /** Returns true if `value` is either a INTEGER_VALUE or a DOUBLE_VALUE. */
+    inline     bool IsNumber(const absl::optional<google_firestore_v1_Value>& value) {
+    return IsInteger(value) || IsDouble(value);
+}
+
+    /** Returns true if `value` is an ARRAY_VALUE. */
+    inline bool IsArray(const absl::optional<google_firestore_v1_Value>& value) {
+      return value  && value->which_value_type == google_firestore_v1_Value_array_value_tag;
+    }
+
 
 }  // namespace model
 

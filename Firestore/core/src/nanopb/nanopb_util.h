@@ -103,6 +103,11 @@ template <typename T>
 T* _Nonnull MakeArray(pb_size_t count) {
   return static_cast<T*>(calloc(count, sizeof(T)));
 }
+    template <typename T>
+    T* _Nonnull ResizeArray(void *__ptr,pb_size_t count) {
+      return static_cast<T*>(realloc(ptr, count* sizeof(T)));
+    }
+
 
 #if __OBJC__
 inline ByteString MakeByteString(NSData* _Nullable value) {
