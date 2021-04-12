@@ -23,7 +23,7 @@
 #include <utility>
 #include <vector>
 
-#include "Firestore/core/src/model/field_value.h"
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -75,7 +75,7 @@ class TransformOperation {
    * Computes the local transform result against the provided `previous_value`,
    * optionally using the provided local_write_time.
    */
-  FieldValue ApplyToLocalView(const absl::optional<FieldValue>& previous_value,
+  FieldValue ApplyToLocalView(const absl::optional<google_firestore_v1_Value>& previous_value,
                               const Timestamp& local_write_time) const {
     return rep().ApplyToLocalView(previous_value, local_write_time);
   }
@@ -85,8 +85,8 @@ class TransformOperation {
    * by the server, potentially using the server-provided transform_result.
    */
   FieldValue ApplyToRemoteDocument(
-      const absl::optional<FieldValue>& previous_value,
-      const FieldValue& transform_result) const {
+      const absl::optional<google_firestore_v1_Value>& previous_value,
+      const google_firestore_v1_Value& transform_result) const {
     return rep().ApplyToRemoteDocument(previous_value, transform_result);
   }
 
@@ -133,16 +133,16 @@ class TransformOperation {
 
     virtual Type type() const = 0;
 
-    virtual FieldValue ApplyToLocalView(
-        const absl::optional<FieldValue>& previous_value,
+    virtual google_firestore_v1_Value ApplyToLocalView(
+        const absl::optional<google_firestore_v1_Value>& previous_value,
         const Timestamp& local_write_time) const = 0;
 
-    virtual FieldValue ApplyToRemoteDocument(
-        const absl::optional<FieldValue>& previous_value,
+    virtual google_firestore_v1_Value ApplyToRemoteDocument(
+        const absl::optional<google_firestore_v1_Value>& previous_value,
         const FieldValue& transform_result) const = 0;
 
-    virtual absl::optional<FieldValue> ComputeBaseValue(
-        const absl::optional<FieldValue>& previous_value) const = 0;
+    virtual absl::optional<google_firestore_v1_Value> ComputeBaseValue(
+        const absl::optional<google_firestore_v1_Value>& previous_value) const = 0;
 
     virtual bool Equals(const TransformOperation::Rep& other) const = 0;
 
@@ -176,7 +176,7 @@ class ServerTimestampTransform : public TransformOperation {
  */
 class ArrayTransform : public TransformOperation {
  public:
-  ArrayTransform(Type type, std::vector<FieldValue> elements);
+  ArrayTransform(Type type, std::vector<google_firestore_v1_Value> elements);
 
   /**
    * Casts a TransformOperation to an ArrayTransform. This is a checked
@@ -202,7 +202,7 @@ class ArrayTransform : public TransformOperation {
  */
 class NumericIncrementTransform : public TransformOperation {
  public:
-  explicit NumericIncrementTransform(FieldValue operand);
+  explicit NumericIncrementTransform(google_firestore_v1_Value operand);
 
   /**
    * Casts a TransformOperation to a NumericIncrementTransform. This is a
@@ -211,7 +211,7 @@ class NumericIncrementTransform : public TransformOperation {
    */
   explicit NumericIncrementTransform(const TransformOperation& op);
 
-  const FieldValue& operand() const;
+  const google_firestore_v1_Value& operand() const;
 
  private:
   class Rep;

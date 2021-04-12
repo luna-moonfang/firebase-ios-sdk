@@ -31,7 +31,6 @@
 #include "Firestore/core/src/core/core_fwd.h"
 #include "Firestore/core/src/core/filter.h"
 #include "Firestore/core/src/model/database_id.h"
-#include "Firestore/core/src/model/field_value.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
@@ -153,7 +152,7 @@ class Serializer {
   /**
    * @brief Converts from nanopb proto to the model Document format.
    */
-  model::MaybeDocument DecodeMaybeDocument(
+  model::Document DecodeMaybeDocument(
       util::ReadContext* context,
       const google_firestore_v1_BatchGetDocumentsResponse& response) const;
 
@@ -269,21 +268,10 @@ class Serializer {
       util::ReadContext* context, absl::string_view reference_value) const;
 
  private:
-  google_firestore_v1_Value EncodeNull() const;
-  google_firestore_v1_Value EncodeBoolean(bool value) const;
-  google_firestore_v1_Value EncodeInteger(int64_t value) const;
-  google_firestore_v1_Value EncodeDouble(double value) const;
-  google_firestore_v1_Value EncodeTimestampValue(Timestamp value) const;
-  google_firestore_v1_Value EncodeStringValue(const std::string& value) const;
-  google_firestore_v1_Value EncodeBlob(const nanopb::ByteString& value) const;
-  google_firestore_v1_Value EncodeReference(
-      const google_firestore_v1_Value::Reference& value) const;
-  google_firestore_v1_Value EncodeGeoPoint(const GeoPoint& value) const;
-
   model::Document DecodeFoundDocument(
       util::ReadContext* context,
       const google_firestore_v1_BatchGetDocumentsResponse& response) const;
-  model::NoDocument DecodeMissingDocument(
+  model::Document DecodeMissingDocument(
       util::ReadContext* context,
       const google_firestore_v1_BatchGetDocumentsResponse& response) const;
 
@@ -304,13 +292,6 @@ class Serializer {
   model::DocumentKey DecodeKey(util::ReadContext* context,
                                const model::ResourcePath& resource_name) const;
 
-  google_firestore_v1_Value::Map::value_type DecodeFieldsEntry(
-      util::ReadContext* context,
-      const google_firestore_v1_Document_FieldsEntry& fields) const;
-
-  google_firestore_v1_Value::Map DecodeMapValue(
-      util::ReadContext* context,
-      const google_firestore_v1_MapValue& map_value) const;
 
   model::DatabaseId DecodeDatabaseId(
       util::ReadContext* context,
