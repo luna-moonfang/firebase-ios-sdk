@@ -24,7 +24,7 @@
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRTransaction+Internal.h"
-#import "Firestore/Source/API/FSTUserDataConverter.h"
+#import "Firestore/Source/API/FSTUserDataReader.h"
 
 #include "Firestore/core/src/core/transaction.h"
 #include "Firestore/core/src/core/user_data.h"
@@ -89,8 +89,8 @@ NS_ASSUME_NONNULL_BEGIN
                 forDocument:(FIRDocumentReference *)document
                       merge:(BOOL)merge {
   [self validateReference:document];
-  ParsedSetData parsed = merge ? [self.firestore.dataConverter parsedMergeData:data fieldMask:nil]
-                               : [self.firestore.dataConverter parsedSetData:data];
+  ParsedSetData parsed = merge ? [self.firestore.dataReader parsedMergeData:data fieldMask:nil]
+                               : [self.firestore.dataReader parsedSetData:data];
   _internalTransaction->Set(document.key, std::move(parsed));
   return self;
 }
@@ -99,7 +99,7 @@ NS_ASSUME_NONNULL_BEGIN
                 forDocument:(FIRDocumentReference *)document
                 mergeFields:(NSArray<id> *)mergeFields {
   [self validateReference:document];
-  ParsedSetData parsed = [self.firestore.dataConverter parsedMergeData:data fieldMask:mergeFields];
+  ParsedSetData parsed = [self.firestore.dataReader parsedMergeData:data fieldMask:mergeFields];
   _internalTransaction->Set(document.key, std::move(parsed));
   return self;
 }
@@ -107,7 +107,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FIRTransaction *)updateData:(NSDictionary<id, id> *)fields
                    forDocument:(FIRDocumentReference *)document {
   [self validateReference:document];
-  ParsedUpdateData parsed = [self.firestore.dataConverter parsedUpdateData:fields];
+  ParsedUpdateData parsed = [self.firestore.dataReader parsedUpdateData:fields];
   _internalTransaction->Update(document.key, std::move(parsed));
   return self;
 }
@@ -134,16 +134,15 @@ NS_ASSUME_NONNULL_BEGIN
         HARD_ASSERT(documents.size() == 1, "Mismatch in docs returned from document lookup.");
         const MaybeDocument &internalDoc = documents.front();
         if (internalDoc.is_no_document()) {
-          FIRDocumentSnapshot *doc =
-              [[FIRDocumentSnapshot alloc] initWithFirestore:self.firestore.wrapped
-                                                 documentKey:document.key
-                                                    document:absl::nullopt
-                                                   fromCache:false
-                                            hasPendingWrites:false];
+          FIRDocumentSnapshot *doc = [[FIRDocumentSnapshot alloc] initWithFirestore:self.firestore
+                                                                        documentKey:document.key
+                                                                           document:absl::nullopt
+                                                                          fromCache:false
+                                                                   hasPendingWrites:false];
           completion(doc, nil);
         } else if (internalDoc.is_document()) {
           FIRDocumentSnapshot *doc =
-              [[FIRDocumentSnapshot alloc] initWithFirestore:self.firestore.wrapped
+              [[FIRDocumentSnapshot alloc] initWithFirestore:self.firestore
                                                  documentKey:internalDoc.key()
                                                     document:Document(internalDoc)
                                                    fromCache:false

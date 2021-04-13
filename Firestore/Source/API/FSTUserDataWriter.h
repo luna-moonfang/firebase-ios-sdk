@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,27 @@
  * limitations under the License.
  */
 
-#import "FIRWriteBatch.h"
-
 #import <Foundation/Foundation.h>
 
-#include "Firestore/core/src/api/write_batch.h"
+#include <memory>
 
-@class FSTUserDataReader;
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
+#include "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
+#include "Firestore/core/src/api/api_fwd.h"
 
 namespace api = firebase::firestore::api;
 
-NS_ASSUME_NONNULL_BEGIN
+/**
+ * Converts Firestore's internal types to the API types that we expose to the
+ * user.
+ */
+@interface FSTUserDataWriter : NSObject
 
-@interface FIRWriteBatch (Internal)
+- (instancetype)init NS_UNAVAILABLE;
 
-+ (instancetype)writeBatchWithDataReader:(FSTUserDataReader *)dataReader
-                              writeBatch:(api::WriteBatch &&)writeBatch;
+- (instancetype)initWithFirestore:(std::shared_ptr<api::Firestore>)firestore
+          serverTimestampBehavior:(FIRServerTimestampBehavior)serverTimestampBehavior;
+
+- (id)convertedValue:(const firebase::firestore::google_firestore_v1_Value&)value;
 
 @end
-
-NS_ASSUME_NONNULL_END

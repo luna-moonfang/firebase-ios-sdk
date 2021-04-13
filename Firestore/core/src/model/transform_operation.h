@@ -76,7 +76,7 @@ class TransformOperation {
    * Computes the local transform result against the provided `previous_value`,
    * optionally using the provided local_write_time.
    */
-  FieldValue ApplyToLocalView(const absl::optional<google_firestore_v1_Value>& previous_value,
+  google_firestore_v1_Value ApplyToLocalView(const absl::optional<google_firestore_v1_Value>& previous_value,
                               const Timestamp& local_write_time) const {
     return rep().ApplyToLocalView(previous_value, local_write_time);
   }
@@ -85,7 +85,7 @@ class TransformOperation {
    * Computes a final transform result after the transform has been acknowledged
    * by the server, potentially using the server-provided transform_result.
    */
-  FieldValue ApplyToRemoteDocument(
+  google_firestore_v1_Value ApplyToRemoteDocument(
       const absl::optional<google_firestore_v1_Value>& previous_value,
       const google_firestore_v1_Value& transform_result) const {
     return rep().ApplyToRemoteDocument(previous_value, transform_result);
@@ -106,8 +106,8 @@ class TransformOperation {
    * @return a base value to store along with the mutation, or empty for
    *     idempotent transforms.
    */
-  absl::optional<FieldValue> ComputeBaseValue(
-      const absl::optional<FieldValue>& previous_value) const {
+  absl::optional<google_firestore_v1_Value> ComputeBaseValue(
+      const absl::optional<google_firestore_v1_Value>& previous_value) const {
     return rep().ComputeBaseValue(previous_value);
   }
 
@@ -177,7 +177,7 @@ class ServerTimestampTransform : public TransformOperation {
  */
 class ArrayTransform : public TransformOperation {
  public:
-  ArrayTransform(Type type, std::vector<nanopb::Message<google_firestore_v1_Value>> elements);
+  ArrayTransform(Type type, google_firestore_v1_ArrayValue array_value);
 
   /**
    * Casts a TransformOperation to an ArrayTransform. This is a checked

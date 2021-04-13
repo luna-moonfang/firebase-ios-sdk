@@ -40,6 +40,7 @@
 #include "Firestore/core/src/model/field_path.h"
 #include "Firestore/core/src/model/patch_mutation.h"
 #include "Firestore/core/src/model/resource_path.h"
+#include "Firestore/core/src/model/server_timestamp_util.h"
 #include "Firestore/core/src/model/set_mutation.h"
 #include "Firestore/core/src/model/verify_mutation.h"
 #include "Firestore/core/src/model/value_util.h"
@@ -77,6 +78,7 @@ using model::DeleteMutation;
 using model::Document;
 using model::DocumentKey;
 using model::DocumentState;
+using model::EncodeServerTimestamp;
 using model::FieldMask;
 using model::FieldPath;
 using model::FieldTransform;
@@ -250,7 +252,7 @@ pb_bytes_array_t* Serializer::EncodeResourceName(
 
 ResourcePath Serializer::DecodeResourceName(ReadContext* context,
                                             absl::string_view encoded) const {
-  ResourcePath resource = ResourcePath::FromStringView(encoded);
+  auto resource = ResourcePath::FromStringView(encoded);
   if (!IsValidResourceName(resource)) {
     context->Fail(StringFormat("Tried to deserialize an invalid key %s",
                                resource.CanonicalString()));
@@ -591,26 +593,21 @@ FieldTransform Serializer::DecodeFieldTransform(
     }
 
     case google_firestore_v1_DocumentTransform_FieldTransform_append_missing_elements_tag: {  // NOLINT
-      std::vector<FieldValue> elements =
-          DecodeArray(context, proto.append_missing_elements);
       return FieldTransform(std::move(field),
                             ArrayTransform(TransformOperation::Type::ArrayUnion,
-                                           std::move(elements)));
+                                           proto.append_missing_elements));
     }
 
     case google_firestore_v1_DocumentTransform_FieldTransform_remove_all_from_array_tag: {  // NOLINT
-      std::vector<FieldValue> elements =
-          DecodeArray(context, proto.remove_all_from_array);
       return FieldTransform(
           std::move(field),
           ArrayTransform(TransformOperation::Type::ArrayRemove,
-                         std::move(elements)));
+                         proto.remove_all_from_array));
     }
 
     case google_firestore_v1_DocumentTransform_FieldTransform_increment_tag: {
-      FieldValue operand = DecodeFieldValue(context, proto.increment);
       return FieldTransform(std::move(field),
-                            NumericIncrementTransform(std::move(operand)));
+                            NumericIncrementTransform(proto.increment));
     }
   }
 

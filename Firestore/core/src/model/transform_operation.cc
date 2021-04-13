@@ -68,7 +68,7 @@ class ServerTimestampTransform::Rep : public TransformOperation::Rep {
   google_firestore_v1_Value ApplyToLocalView(
       const absl::optional<google_firestore_v1_Value>& previous_value,
       const Timestamp& local_write_time) const override {
-    return google_firestore_v1_Value::FromServerTimestamp(local_write_time, previous_value);
+    return EncodeServerTimestamp(local_write_time, previous_value);
   }
 
   google_firestore_v1_Value ApplyToRemoteDocument(
