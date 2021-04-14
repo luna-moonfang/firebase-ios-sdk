@@ -23,6 +23,7 @@
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/core/filter.h"
 #include "Firestore/core/src/model/field_path.h"
+#include "Firestore/core/src/nanopb/message.h"
 
 namespace firebase {
 namespace firestore {
@@ -57,7 +58,7 @@ class FieldFilter : public Filter {
   }
 
   const google_firestore_v1_Value& value() const {
-    return field_filter_rep().value_rhs_;
+    return *(field_filter_rep().value_rhs_);
   }
 
  protected:
@@ -82,7 +83,7 @@ class FieldFilter : public Filter {
     }
 
     const google_firestore_v1_Value& value() const {
-      return value_rhs_;
+      return *value_rhs_;
     }
 
     bool Matches(const model::Document& doc) const override;
@@ -122,7 +123,7 @@ class FieldFilter : public Filter {
     Operator op_;
 
     /** The right hand side of the relation. A constant value to compare to. */
-    google_firestore_v1_Value value_rhs_;
+    nanopb::Message<google_firestore_v1_Value> value_rhs_;
   };
 
   explicit FieldFilter(std::shared_ptr<const Filter::Rep> rep);

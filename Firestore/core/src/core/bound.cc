@@ -40,12 +40,12 @@ using util::ComparisonResult;
 
 bool Bound::SortsBeforeDocument(const OrderByList& order_by,
                                 const model::Document& document) const {
-  HARD_ASSERT(position_.size() <= order_by.size(),
+  HARD_ASSERT(position_->values_count <= order_by.size(),
               "Bound has more components than the provided order by.");
 
   ComparisonResult result = ComparisonResult::Same;
-  for (size_t idx = 0; idx < position_.size(); ++idx) {
-    const google_firestore_v1_Value& field_value = position_[idx];
+  for (size_t idx = 0; idx < position_->values_count; ++idx) {
+    const google_firestore_v1_Value& field_value = position_->values[idx];
     const OrderBy& ordering_component = order_by[idx];
 
     ComparisonResult comparison;
@@ -55,7 +55,7 @@ bool Bound::SortsBeforeDocument(const OrderByList& order_by,
           "Bound has a non-key value where the key path is being used %s",
           field_value.ToString());
       const auto& ref = DocumentKey::FromName(
-          nanopb::MakeStringView(field_value.reference_value));
+          nanopb::MakeString(field_value.reference_value));
       comparison = ref.key().CompareTo(document.key());
 
     } else {

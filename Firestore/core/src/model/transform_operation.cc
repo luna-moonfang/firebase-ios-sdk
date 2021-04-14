@@ -23,11 +23,11 @@
 #include <vector>
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
-#include "Firestore/core/src/util/hard_assert.h"
-#include "Firestore/core/src/util/to_string.h"
 #include "Firestore/core/src/model/server_timestamp_util.h"
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
+#include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/to_string.h"
 #include "absl/algorithm/container.h"
 #include "absl/strings/str_cat.h"
 
@@ -113,8 +113,8 @@ static_assert(sizeof(TransformOperation) == sizeof(ArrayTransform),
  */
 class ArrayTransform::Rep : public TransformOperation::Rep {
  public:
-  Rep(Type type, nanopb::Message<google_firestore_v1_ArrayValue> elements)
-      : type_(type), elements_(std::move(elements)) {
+  Rep(Type type, google_firestore_v1_ArrayValue elements)
+      : type_(type), elements_{elements} {
   }
 
   Type type() const override {
@@ -142,7 +142,7 @@ class ArrayTransform::Rep : public TransformOperation::Rep {
     return absl::nullopt;
   }
 
-     google_firestore_v1_ArrayValue elements() const {
+  google_firestore_v1_ArrayValue elements() const {
     return *elements_;
   }
 
@@ -166,11 +166,11 @@ class ArrayTransform::Rep : public TransformOperation::Rep {
   google_firestore_v1_ArrayValue CoercedFieldValueArray(
       const absl::optional<google_firestore_v1_Value>& value) const;
 
-    google_firestore_v1_ArrayValue Apply(
+  google_firestore_v1_Value Apply(
       const absl::optional<google_firestore_v1_Value>& previous_value) const;
 
   Type type_;
- nanopb::Message<google_firestore_v1_ArrayValue> elements_;
+  nanopb::Message<google_firestore_v1_ArrayValue> elements_;
 };
 
 namespace {
@@ -181,8 +181,8 @@ constexpr bool IsArrayTransform(Type type) {
 
 }  // namespace
 
-ArrayTransform::ArrayTransform(Type type,
-                               nanopb::Message<google_firestore_v1_ArrayValue> elements)
+ArrayTransform::ArrayTransform(
+    Type type, nanopb::Message<google_firestore_v1_ArrayValue> elements)
     : TransformOperation(
           std::make_shared<const Rep>(type, std::move(elements))) {
   HARD_ASSERT(IsArrayTransform(type), "Expected array transform type; got %s",
@@ -195,8 +195,8 @@ ArrayTransform::ArrayTransform(const TransformOperation& op)
               "Expected array transform type; got %s", op.type());
 }
 
-        google_firestore_v1_ArrayValue ArrayTransform::elements() const {
-  return array_rep().elements_;
+google_firestore_v1_ArrayValue ArrayTransform::elements() const {
+  return *(array_rep().elements_);
 }
 
 const ArrayTransform::Rep& ArrayTransform::array_rep() const {
@@ -243,36 +243,41 @@ google_firestore_v1_ArrayValue ArrayTransform::Rep::CoercedFieldValueArray(
   }
 }
 
-        google_firestore_v1_ArrayValue ArrayTransform::Rep::Apply(
+google_firestore_v1_Value ArrayTransform::Rep::Apply(
     const absl::optional<google_firestore_v1_Value>& previous_value) const {
-  google_firestore_v1_ArrayValue result = CoercedFieldValueArray(previous_value);
+  google_firestore_v1_ArrayValue array_value =
+      CoercedFieldValueArray(previous_value);
   if (type_ == Type::ArrayUnion) {
-     std::vector<google_firestore_v1_Value>
-            new_elements;
-  for (pb_size_t i=0;i<elements_->values_count;++i) {
-      if ( !Contains(result, elements_->values[i])) {
+    std::vector<google_firestore_v1_Value> new_elements;
+    for (pb_size_t i = 0; i < elements_->values_count; ++i) {
+      if (!Contains(array_value, elements_->values[i])) {
         new_elements.push_back(elements_->values[i]);
       }
-  }
-    pb_size_t new_size=result.values_count+new_elements.size();
-    result.values=nanopb::ResizeArray<google_firestore_v1_Value>(result.values,new_size);
-    for(const auto& element:new_elements){
-      result.values[result.values_count]=DeepClone(element);
-      ++result.values_count;
-  }
-  }else {
-    HARD_ASSERT(type_ == Type::ArrayRemove);
-    pb_size_t new_index=0;
-    for (pb_size_t old_index=0;old_index<result.values_count;++old_index) {
-        if(Contains(*elements_,result.values[old_index])){
-nanopb::FreeNanopbMessage(result.values[old_index]);
-        }else{
-          result.values[new_index]=result.values_count[old_index];
-          ++new_index;
-        }
-      }
-    result.values_count=new_index;
     }
+    pb_size_t new_size = array_value.values_count + new_elements.size();
+    array_value.values = nanopb::ResizeArray<google_firestore_v1_Value>(
+        array_value.values, new_size);
+    for (const auto& element : new_elements) {
+      array_value.values[array_value.values_count] = DeepClone(element);
+      ++array_value.values_count;
+    }
+  } else {
+    HARD_ASSERT(type_ == Type::ArrayRemove);
+    pb_size_t new_index = 0;
+    for (pb_size_t old_index = 0; old_index < array_value.values_count;
+         ++old_index) {
+      if (Contains(*elements_, array_value.values[old_index])) {
+        nanopb::FreeNanopbMessage(array_value.values[old_index]);
+      } else {
+        array_value.values[new_index] = array_value.values_count[old_index];
+        ++new_index;
+      }
+    }
+    array_value.values_count = new_index;
+  }
+
+  google_firestore_v1_Value result;
+  result.which_value_type = google_firestore_v1_ArrayValue_values_tag;
   return result;
 }
 
@@ -305,7 +310,7 @@ class NumericIncrementTransform::Rep : public TransformOperation::Rep {
       const absl::optional<google_firestore_v1_Value>& previous_value)
       const override;
 
-    double OperandAsDouble();
+  double OperandAsDouble();
 
   bool Equals(const TransformOperation::Rep& other) const override;
 
@@ -323,7 +328,8 @@ class NumericIncrementTransform::Rep : public TransformOperation::Rep {
   google_firestore_v1_Value operand_;
 };
 
-NumericIncrementTransform::NumericIncrementTransform(google_firestore_v1_Value operand)
+NumericIncrementTransform::NumericIncrementTransform(
+    google_firestore_v1_Value operand)
     : TransformOperation(std::make_shared<Rep>(operand)) {
   HARD_ASSERT(IsNumber(operand));
 }
@@ -357,51 +363,49 @@ int64_t SafeIncrement(int64_t x, int64_t y) {
   return x + y;
 }
 
-
 }  // namespace
 
-
-        double NumericIncrementTransform::Rep::OperandAsDouble() {
-          if (IsDouble(operand_)) {
-            return operand_.double_value;
-          } else if (IsInteger(operand_)) {
-            return static_cast<double>(operand_.integer_value);
-          } else {
-            HARD_FAIL("Expected 'operand' to be of numeric type, but was %s (type %s)",
-                      CanonicalId(operand_), GetTypeOrder(operand_));
-          }
-        }
+double NumericIncrementTransform::Rep::OperandAsDouble() {
+  if (IsDouble(operand_)) {
+    return operand_.double_value;
+  } else if (IsInteger(operand_)) {
+    return static_cast<double>(operand_.integer_value);
+  } else {
+    HARD_FAIL("Expected 'operand' to be of numeric type, but was %s (type %s)",
+              CanonicalId(operand_), GetTypeOrder(operand_));
+  }
+}
 
 google_firestore_v1_Value NumericIncrementTransform::Rep::ApplyToLocalView(
     const absl::optional<google_firestore_v1_Value>& previous_value,
     const Timestamp& /* local_write_time */) const {
-  absl::optional<google_firestore_v1_Value> base_value = ComputeBaseValue(previous_value);
+  absl::optional<google_firestore_v1_Value> base_value =
+      ComputeBaseValue(previous_value);
   google_firestore_v1_Value result;
 
   // Return an integer value only if the previous value and the operand is an
   // integer.
-  if (IsInteger(base_value)&&IsInteger(operand_)) {
-    result.which_value_type=
-            google_firestore_v1_Value_integer_value_tag;
-    result.integer_value=
+  if (IsInteger(base_value) && IsInteger(operand_)) {
+    result.which_value_type = google_firestore_v1_Value_integer_value_tag;
+    result.integer_value =
         SafeIncrement(base_value->integer_value, operand_.integer_value);
-  } else if(IsInteger(base_value)) {
-    result.double_value= base_value->integer_value+OperandAsDouble();
-  }else{
-    HARD_ASSERT(IsDouble(base_value),
-                "'base_value' is not of numeric type");
-    result.double_value= base_value->double_value+OperandAsDouble();
+  } else if (IsInteger(base_value)) {
+    result.double_value = base_value->integer_value + OperandAsDouble();
+  } else {
+    HARD_ASSERT(IsDouble(base_value), "'base_value' is not of numeric type");
+    result.double_value = base_value->double_value + OperandAsDouble();
   }
 
   return result;
 }
 
-absl::optional<google_firestore_v1_Value> NumericIncrementTransform::Rep::ComputeBaseValue(
+absl::optional<google_firestore_v1_Value>
+NumericIncrementTransform::Rep::ComputeBaseValue(
     const absl::optional<google_firestore_v1_Value>& previous_value) const {
   if (IsNumber(previous_value)) return previous_value;
 
   google_firestore_v1_Value zero_value;
-  zero_value.which_value_type=google_firestore_v1_Value_integer_value_tag;
+  zero_value.which_value_type = google_firestore_v1_Value_integer_value_tag;
   return zero_value;
 }
 

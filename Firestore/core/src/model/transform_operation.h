@@ -76,8 +76,9 @@ class TransformOperation {
    * Computes the local transform result against the provided `previous_value`,
    * optionally using the provided local_write_time.
    */
-  google_firestore_v1_Value ApplyToLocalView(const absl::optional<google_firestore_v1_Value>& previous_value,
-                              const Timestamp& local_write_time) const {
+  google_firestore_v1_Value ApplyToLocalView(
+      const absl::optional<google_firestore_v1_Value>& previous_value,
+      const Timestamp& local_write_time) const {
     return rep().ApplyToLocalView(previous_value, local_write_time);
   }
 
@@ -143,7 +144,8 @@ class TransformOperation {
         const google_firestore_v1_Value& transform_result) const = 0;
 
     virtual absl::optional<google_firestore_v1_Value> ComputeBaseValue(
-        const absl::optional<google_firestore_v1_Value>& previous_value) const = 0;
+        const absl::optional<google_firestore_v1_Value>& previous_value)
+        const = 0;
 
     virtual bool Equals(const TransformOperation::Rep& other) const = 0;
 
@@ -188,7 +190,7 @@ class ArrayTransform : public TransformOperation {
 
   ArrayTransform() = default;
 
-  const std::vector<google_firestore_v1_Value>& elements() const;
+  google_firestore_v1_ArrayValue elements() const;
 
  private:
   class Rep;

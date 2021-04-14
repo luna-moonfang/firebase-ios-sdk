@@ -82,7 +82,7 @@ ByteString Bytes(std::initializer_list<uint8_t> octets) {
 }
 
 FieldValue Value(std::nullptr_t) {
-  return FieldValue::Null();
+  return NullValue();
 }
 
 FieldValue Value(double value) {
@@ -257,7 +257,7 @@ core::FieldFilter Filter(absl::string_view key,
 core::FieldFilter Filter(absl::string_view key,
                          absl::string_view op,
                          std::nullptr_t) {
-  return Filter(key, op, FieldValue::Null());
+  return Filter(key, op, NullValue());
 }
 
 core::FieldFilter Filter(absl::string_view key,

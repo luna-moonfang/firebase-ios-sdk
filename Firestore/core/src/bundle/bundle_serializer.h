@@ -123,11 +123,9 @@ class BundleSerializer {
                                  const nlohmann::json& name) const;
 
   remote::Serializer rpc_serializer_;
-  google_firestore_v1_Value DecodeReferenceValue(
-      JsonReader& context, const std::string& value) const;
-  google_firestore_v1_Value DecodeArrayValue(
+  google_firestore_v1_ArrayValue DecodeArrayValue(
       JsonReader& context, const nlohmann::json& array_json) const;
-  google_firestore_v1_Value DecodeMapValue(
+  google_firestore_v1_MapValue DecodeMapValue(
       JsonReader& context, const nlohmann::json& map_json) const;
 };
 

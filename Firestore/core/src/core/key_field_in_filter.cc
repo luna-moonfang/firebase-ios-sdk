@@ -32,8 +32,8 @@ namespace core {
 using model::Document;
 using model::DocumentKey;
 using model::FieldPath;
-    using model::GetTypeOrder;
-    using model::TypeOrder;
+using model::GetTypeOrder;
+using model::TypeOrder;
 
 using Operator = Filter::Operator;
 
@@ -51,7 +51,8 @@ class KeyFieldInFilter::Rep : public FieldFilter::Rep {
   bool Matches(const model::Document& doc) const override;
 };
 
-KeyFieldInFilter::KeyFieldInFilter(FieldPath field, google_firestore_v1_Value value)
+KeyFieldInFilter::KeyFieldInFilter(FieldPath field,
+                                   google_firestore_v1_Value value)
     : FieldFilter(
           std::make_shared<const Rep>(std::move(field), std::move(value))) {
 }
@@ -61,15 +62,18 @@ bool KeyFieldInFilter::Rep::Matches(const Document& doc) const {
   return Contains(array_value, doc);
 }
 
-bool KeyFieldInFilter::Contains(const google_firestore_v1_ArrayValue& array_value,
-                                const Document& doc) {
+bool KeyFieldInFilter::Contains(
+    const google_firestore_v1_ArrayValue& array_value, const Document& doc) {
   google_firestore_v1_Value reference_value{};
-  reference_value.which_value_type=google_firestore_v1_Value_reference_value_tag;
-  reference_value.reference_value=nanopb::MakeBytesArray(doc.key().ToString());//Verfy
-  return model::Contains(array_value,reference_value);
+  reference_value.which_value_type =
+      google_firestore_v1_Value_reference_value_tag;
+  reference_value.reference_value =
+      nanopb::MakeBytesArray(doc.key().ToString());  // Verfy
+  return model::Contains(array_value, reference_value);
 }
 
-void KeyFieldInFilter::ValidateArrayValue(const google_firestore_v1_Value& value) {
+void KeyFieldInFilter::ValidateArrayValue(
+    const google_firestore_v1_Value& value) {
   HARD_ASSERT(GetTypeOrder(value) != TypeOrder::kArray,
               "Comparing on key with In/NotIn, but the value was not an Array");
   const google_firestore_v1_ArrayValue& array_value = value.array_value;

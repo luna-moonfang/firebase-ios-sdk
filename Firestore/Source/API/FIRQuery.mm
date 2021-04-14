@@ -552,7 +552,7 @@ int32_t SaturatedLimitValue(NSInteger limit) {
       absl::optional<FieldValue> value = document.field(orderBy.field());
 
       if (value) {
-        if (value->type() == FieldValue::Type::ServerTimestamp) {
+        if (value->type() == TypeOrder::kServerTimestamp) {
           ThrowInvalidArgument(
               "Invalid query. You are trying to start or end a query using a document for which "
               "the field '%s' is an uncommitted server timestamp. (Since the value of this field "
@@ -588,7 +588,7 @@ int32_t SaturatedLimitValue(NSInteger limit) {
 
     FieldValue fieldValue = [self parsedQueryValue:rawValue];
     if (sortOrder.field().IsKeyFieldPath()) {
-      if (fieldValue.type() != FieldValue::Type::String) {
+      if (fieldValue.type() != TypeOrder::kString) {
         ThrowInvalidArgument("Invalid query. Expected a string for the document ID.");
       }
       const std::string &documentID = fieldValue.string_value();

@@ -380,7 +380,7 @@ void Query::ValidateHasExplicitOrderByForLimitToLast() const {
 void Query::ValidateDisjunctiveFilterElements(
     const google_firestore_v1_Value& field_value, Operator op) const {
   HARD_ASSERT(
-      field_value.type() == FieldValue::Type::Array,
+      field_value.type() == TypeOrder::kArray,
       "A FieldValue of Array type is required for disjunctive filters.");
   if (field_value.array_value().size() == 0) {
     ThrowInvalidArgument(
@@ -399,7 +399,7 @@ void Query::ValidateDisjunctiveFilterElements(
 FieldValue Query::ParseExpectedReferenceValue(
     const google_firestore_v1_Value& field_value,
     const std::function<std::string()>& type_describer) const {
-  if (field_value.type() == FieldValue::Type::String) {
+  if (field_value.type() == TypeOrder::kString) {
     const std::string& document_key = field_value.string_value();
     if (document_key.empty()) {
       ThrowInvalidArgument(
@@ -424,7 +424,7 @@ FieldValue Query::ParseExpectedReferenceValue(
     }
     return FieldValue::FromReference(firestore_->database_id(),
                                      DocumentKey{path});
-  } else if (field_value.type() == FieldValue::Type::Reference) {
+  } else if (field_value.type() == TypeOrder::kReference) {
     return field_value;
   } else {
     ThrowInvalidArgument(

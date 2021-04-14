@@ -112,7 +112,7 @@ FieldValue FSTTestFieldValue(id _Nullable value) {
 
 ObjectValue FSTTestObjectValue(NSDictionary<NSString *, id> *data) {
   FieldValue wrapped = FSTTestFieldValue(data);
-  HARD_ASSERT(wrapped.type() == FieldValue::Type::Object, "Unsupported value: %s", data);
+  HARD_ASSERT(wrapped.type() == TypeOrder::kObject, "Unsupported value: %s", data);
   return ObjectValue(std::move(wrapped));
 }
 

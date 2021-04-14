@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/model/value_util.h"
 
+#include <math.h>
 #include <algorithm>
 #include <memory>
 #include <vector>
@@ -467,8 +468,24 @@ bool Contains(google_firestore_v1_ArrayValue haystack,
 
 google_firestore_v1_Value NullValue() {
   google_firestore_v1_Value null_value{};
-  null_value.which_value_type = google_protobuf_Value_null_value_tag;
+  null_value.which_value_type = google_firestore_v1_Value_null_value_tag;
   return null_value;
+}
+
+bool IsNullValue(const google_firestore_v1_Value& value) {
+  return value.which_value_type == google_firestore_v1_Value_null_value_tag;
+}
+
+google_firestore_v1_Value NaNValue() {
+  google_firestore_v1_Value nan_value{};
+  nan_value.which_value_type = google_firestore_v1_Value_double_value_tag;
+  nan_value.double_value = std::numeric_limits<double>::quiet_NaN();
+  return nan_value;
+}
+
+bool IsNaNValue(const google_firestore_v1_Value& value) {
+  return value.which_value_type == google_firestore_v1_Value_double_value_tag &&
+         isnan(value.double_value);
 }
 
 google_firestore_v1_Value DeepClone(const google_firestore_v1_Value& source) {

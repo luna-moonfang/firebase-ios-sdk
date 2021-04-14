@@ -59,7 +59,7 @@ using firebase::firestore::testutil::Field;
   ];
   for (NSNumber *value in values) {
     FieldValue wrapped = FSTTestFieldValue(value);
-    XCTAssertEqual(wrapped.type(), FieldValue::Type::Integer);
+    XCTAssertEqual(wrapped.type(), TypeOrder::kInteger);
     XCTAssertEqual(wrapped.integer_value(), [value longLongValue]);
   }
 }
@@ -73,14 +73,14 @@ using firebase::firestore::testutil::Field;
   ];
   for (NSNumber *value in values) {
     FieldValue wrapped = FSTTestFieldValue(value);
-    XCTAssertEqual(wrapped.type(), FieldValue::Type::Double);
+    XCTAssertEqual(wrapped.type(), TypeOrder::kDouble);
     XCTAssertEqual(wrapped.double_value(), [value doubleValue]);
   }
 }
 
 - (void)testConvertsNilAndNSNull {
   FieldValue nullValue = FieldValue::Null();
-  XCTAssertEqual(nullValue.type(), FieldValue::Type::Null);
+  XCTAssertEqual(nullValue.type(), TypeOrder::kNull);
   XCTAssertEqual(FSTTestFieldValue(nil), nullValue);
   XCTAssertEqual(FSTTestFieldValue([NSNull null]), nullValue);
 }
@@ -89,7 +89,7 @@ using firebase::firestore::testutil::Field;
   NSArray<NSNumber *> *values = @[ @YES, @NO ];
   for (NSNumber *value in values) {
     FieldValue wrapped = FSTTestFieldValue(value);
-    XCTAssertEqual(wrapped.type(), FieldValue::Type::Boolean);
+    XCTAssertEqual(wrapped.type(), TypeOrder::kBoolean);
     XCTAssertEqual(wrapped.boolean_value(), [value boolValue]);
   }
 }
@@ -113,7 +113,7 @@ union DoubleBits {
   NSArray<NSString *> *values = @[ @"", @"abc" ];
   for (id value in values) {
     FieldValue wrapped = FSTTestFieldValue(value);
-    XCTAssertEqual(wrapped.type(), FieldValue::Type::String);
+    XCTAssertEqual(wrapped.type(), TypeOrder::kString);
     XCTAssertEqual(wrapped.string_value(), util::MakeString(value));
   }
 }
@@ -123,7 +123,7 @@ union DoubleBits {
       @[ FSTTestDate(1900, 12, 1, 1, 20, 30), FSTTestDate(2017, 4, 24, 13, 20, 30) ];
   for (NSDate *value in values) {
     FieldValue wrapped = FSTTestFieldValue(value);
-    XCTAssertEqual(wrapped.type(), FieldValue::Type::Timestamp);
+    XCTAssertEqual(wrapped.type(), TypeOrder::kTimestamp);
     XCTAssertEqual(wrapped.timestamp_value(), MakeTimestamp(value));
   }
 }
@@ -133,7 +133,7 @@ union DoubleBits {
 
   for (FIRGeoPoint *value in values) {
     FieldValue wrapped = FSTTestFieldValue(value);
-    XCTAssertEqual(wrapped.type(), FieldValue::Type::GeoPoint);
+    XCTAssertEqual(wrapped.type(), TypeOrder::kGeoPoint);
     XCTAssertEqual(wrapped.geo_point_value(), MakeGeoPoint(value));
   }
 }
@@ -142,7 +142,7 @@ union DoubleBits {
   NSArray<NSData *> *values = @[ FSTTestData(1, 2, 3, -1), FSTTestData(1, 2, -1) ];
   for (NSData *value in values) {
     FieldValue wrapped = FSTTestFieldValue(value);
-    XCTAssertEqual(wrapped.type(), FieldValue::Type::Blob);
+    XCTAssertEqual(wrapped.type(), TypeOrder::kBlob);
     XCTAssertEqualObjects(MakeNSData(wrapped.blob_value()), value);
   }
 }
@@ -154,7 +154,7 @@ union DoubleBits {
   ];
   for (FSTDocumentKeyReference *value in values) {
     FieldValue wrapped = FSTTestFieldValue(value);
-    XCTAssertEqual(wrapped.type(), FieldValue::Type::Reference);
+    XCTAssertEqual(wrapped.type(), TypeOrder::kReference);
     XCTAssertEqual(wrapped.reference_value().key(), value.key);
     XCTAssertTrue(wrapped.reference_value().database_id() == value.databaseID);
   }
@@ -162,7 +162,7 @@ union DoubleBits {
 
 - (void)testConvertsEmptyObjects {
   XCTAssertEqual(ObjectValue(FSTTestFieldValue(@{})), ObjectValue::Empty());
-  XCTAssertEqual(FSTTestFieldValue(@{}).type(), FieldValue::Type::Object);
+  XCTAssertEqual(FSTTestFieldValue(@{}).type(), TypeOrder::kObject);
 }
 
 - (void)testConvertsSimpleObjects {
@@ -173,7 +173,7 @@ union DoubleBits {
                                                {"c", FieldValue::True()},
                                                {"d", FieldValue::Null()}});
   XCTAssertEqual(actual, expected);
-  XCTAssertEqual(actual.AsFieldValue().type(), FieldValue::Type::Object);
+  XCTAssertEqual(actual.AsFieldValue().type(), TypeOrder::kObject);
 }
 
 - (void)testConvertsNestedObjects {
@@ -184,7 +184,7 @@ union DoubleBits {
                              {"d", FieldValue::True()}})},
   });
   XCTAssertEqual(actual, expected);
-  XCTAssertEqual(actual.AsFieldValue().type(), FieldValue::Type::Object);
+  XCTAssertEqual(actual.AsFieldValue().type(), TypeOrder::kObject);
 }
 
 - (void)testConvertsArrays {
@@ -195,7 +195,7 @@ union DoubleBits {
 
   FieldValue actual = (FieldValue)FSTTestFieldValue(@[ @"value", @YES ]);
   XCTAssertEqual(actual, expected);
-  XCTAssertEqual(actual.type(), FieldValue::Type::Array);
+  XCTAssertEqual(actual.type(), TypeOrder::kArray);
 }
 
 - (void)testNSDatesAreConvertedToTimestamps {
@@ -205,16 +205,16 @@ union DoubleBits {
   {
     auto array = value.Get(Field("array"));
     XCTAssertTrue(array.has_value());
-    XCTAssertEqual(array->type(), FieldValue::Type::Array);
+    XCTAssertEqual(array->type(), TypeOrder::kArray);
 
     const FieldValue &actual = array->array_value()[1];
-    XCTAssertEqual(actual.type(), FieldValue::Type::Timestamp);
+    XCTAssertEqual(actual.type(), TypeOrder::kTimestamp);
     XCTAssertEqual(actual.timestamp_value(), MakeTimestamp(date));
   }
   {
     auto found = value.Get(Field("obj.date"));
     XCTAssertTrue(found.has_value());
-    XCTAssertEqual(found->type(), FieldValue::Type::Timestamp);
+    XCTAssertEqual(found->type(), TypeOrder::kTimestamp);
     XCTAssertEqual(found->timestamp_value(), MakeTimestamp(date));
   }
 }

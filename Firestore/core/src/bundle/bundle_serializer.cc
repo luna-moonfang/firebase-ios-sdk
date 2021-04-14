@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/bundle/bundle_serializer.h"
 
+#include <map>
 #include <memory>
 #include <vector>
 
@@ -28,9 +29,10 @@
 #include "Firestore/core/src/core/target.h"
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/field_path.h"
-#include "Firestore/core/src/model/field_value.h"
 #include "Firestore/core/src/model/resource_path.h"
+#include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
+#include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/timestamp_internal.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/string_util.h"
@@ -43,7 +45,6 @@ namespace firestore {
 namespace bundle {
 namespace {
 
-using google_firestore_v1_Value;
 using absl::Time;
 using core::Bound;
 using core::Direction;
@@ -59,6 +60,8 @@ using immutable::AppendOnlyList;
 using model::Document;
 using model::DocumentKey;
 using model::FieldPath;
+using model::NaNValue;
+using model::NullValue;
 using model::ObjectValue;
 using model::ResourcePath;
 using model::SnapshotVersion;
@@ -221,16 +224,16 @@ Filter DecodeUnaryFilter(JsonReader& reader, const json& filter) {
 
   if (op == "IS_NAN") {
     return FieldFilter::Create(std::move(path), Filter::Operator::Equal,
-                               FieldValue::Nan());
+                               NaNValue());
   } else if (op == "IS_NULL") {
     return FieldFilter::Create(std::move(path), Filter::Operator::Equal,
-                               FieldValue::Null());
+                               NullValue());
   } else if (op == "IS_NOT_NAN") {
     return FieldFilter::Create(std::move(path), Filter::Operator::NotEqual,
-                               FieldValue::Nan());
+                               NaNValue());
   } else if (op == "IS_NOT_NULL") {
     return FieldFilter::Create(std::move(path), Filter::Operator::NotEqual,
-                               FieldValue::Null());
+                               NullValue());
   }
 
   reader.Fail("Unexpected unary filter operator: " + op);
@@ -294,21 +297,14 @@ LimitType DecodeLimitType(JsonReader& reader, const json& query) {
   }
 }
 
-FieldValue DecodeGeoPointValue(JsonReader& reader, const json& geo_json) {
-  double latitude = reader.OptionalDouble("latitude", geo_json, 0.0);
-  double longitude = reader.OptionalDouble("longitude", geo_json, 0.0);
-
-  return FieldValue::FromGeoPoint(GeoPoint(latitude, longitude));
-}
-
-FieldValue DecodeBytesValue(JsonReader& reader,
-                            const std::string& bytes_string) {
+pb_bytes_array_t* DecodeBytesValue(JsonReader& reader,
+                                   const std::string& bytes_string) {
   std::string decoded;
   if (!absl::Base64Unescape(bytes_string, &decoded)) {
     reader.Fail("Failed to decode bytesValue string into binary form");
     return {};
   }
-  return FieldValue::FromBlob(ByteString((decoded)));
+  return nanopb::MakeBytesArray(decoded);
 }
 
 }  // namespace
@@ -522,13 +518,13 @@ BundledQuery BundleSerializer::DecodeBundledQuery(
 
   auto start_at_bound = DecodeBound(reader, structured_query, "startAt");
   std::shared_ptr<Bound> start_at;
-  if (!start_at_bound.position().empty()) {
+  if (!start_at_bound.position().values_count) {
     start_at = std::make_shared<Bound>(std::move(start_at_bound));
   }
 
   auto end_at_bound = DecodeBound(reader, structured_query, "endAt");
   std::shared_ptr<Bound> end_at;
-  if (!end_at_bound.position().empty()) {
+  if (!end_at_bound.position().values_count) {
     end_at = std::make_shared<Bound>(std::move(end_at_bound));
   }
 
@@ -591,7 +587,7 @@ Filter BundleSerializer::DecodeFieldFilter(JsonReader& reader,
   const auto& op_string = reader.RequiredString("op", filter);
   auto op = DecodeFieldFilterOperator(reader, op_string);
 
-  FieldValue value =
+  google_firestore_v1_Value value =
       DecodeValue(reader, reader.RequiredObject("value", filter));
 
   // Return early if !ok(), because `FieldFilter::Create` will abort with
@@ -634,61 +630,79 @@ Bound BundleSerializer::DecodeBound(JsonReader& reader,
   const json& bound_json = reader.RequiredObject(bound_name, query);
   bool before = reader.OptionalBool("before", bound_json);
 
-  std::vector<FieldValue> positions;
+  google_firestore_v1_ArrayValue positions;
 
-  for (const auto& value : reader.RequiredArray("values", bound_json)) {
-    positions.push_back(DecodeValue(reader, value));
+  std::vector<json> values = reader.RequiredArray("values", bound_json);
+  positions.values_count = values.size();
+  for (size_t i = 0; i < values.size(); ++i) {
+    positions.values[i] = DecodeValue(reader, values[i]);
   }
 
-  return Bound(std::move(positions), before);
+  return Bound(positions, before);
 }
 
-FieldValue BundleSerializer::DecodeValue(JsonReader& reader,
-                                         const json& value) const {
+google_firestore_v1_Value BundleSerializer::DecodeValue(
+    JsonReader& reader, const json& value) const {
   if (!value.is_object()) {
     reader.Fail("'value' is not encoded as JSON object");
     return {};
   }
 
+  google_firestore_v1_Value result{};
   if (value.contains("nullValue")) {
-    return FieldValue::Null();
+    result.which_value_type = google_firestore_v1_Value_null_value_tag;
   } else if (value.contains("booleanValue")) {
+    result.which_value_type = google_firestore_v1_Value_boolean_value_tag;
     auto val = value.at("booleanValue");
     if (!val.is_boolean()) {
       reader.Fail("'booleanValue' is not encoded as a valid boolean");
       return {};
     }
-    return FieldValue::FromBoolean(val.get<bool>());
+    result.boolean_value = val.get<bool>();
   } else if (value.contains("integerValue")) {
-    return FieldValue::FromInteger(
-        reader.RequiredInt<int64_t>("integerValue", value));
+    result.which_value_type = google_firestore_v1_Value_integer_value_tag;
+    result.integer_value = reader.RequiredInt<int64_t>("integerValue", value);
   } else if (value.contains("doubleValue")) {
-    return FieldValue::FromDouble(reader.RequiredDouble("doubleValue", value));
+    result.which_value_type = google_firestore_v1_Value_double_value_tag;
+    result.double_value = reader.RequiredDouble("doubleValue", value);
   } else if (value.contains("timestampValue")) {
+    result.which_value_type = google_firestore_v1_Value_timestamp_value_tag;
     auto val = DecodeTimestamp(reader, value.at("timestampValue"));
-    return FieldValue::FromTimestamp(val);
+    result.timestamp_value.seconds = val.seconds();
+    result.timestamp_value.nanos = val.nanoseconds();
   } else if (value.contains("stringValue")) {
-    auto val = reader.RequiredString("stringValue", value);
-    return FieldValue::FromString(std::move(val));
+    result.which_value_type = google_firestore_v1_Value_string_value_tag;
+    result.string_value =
+        nanopb::MakeBytesArray(reader.RequiredString("stringValue", value));
   } else if (value.contains("bytesValue")) {
-    return DecodeBytesValue(reader, reader.RequiredString("bytesValue", value));
+    result.which_value_type = google_firestore_v1_Value_bytes_value_tag;
+    result.bytes_value =
+        DecodeBytesValue(reader, reader.RequiredString("bytesValue", value));
   } else if (value.contains("referenceValue")) {
-    return DecodeReferenceValue(reader,
-                                reader.RequiredString("referenceValue", value));
+    result.which_value_type = google_firestore_v1_Value_reference_value_tag;
+    result.reference_value =
+        nanopb::MakeBytesArray(reader.RequiredString("referenceValue", value));
   } else if (value.contains("geoPointValue")) {
-    return DecodeGeoPointValue(reader, value.at("geoPointValue"));
+    result.which_value_type = google_firestore_v1_Value_geo_point_value_tag;
+    result.geo_point_value.latitude =
+        reader.OptionalDouble("latitude", value, 0.0);
+    result.geo_point_value.longitude =
+        reader.OptionalDouble("longitude", value, 0.0);
   } else if (value.contains("arrayValue")) {
-    return DecodeArrayValue(reader, value.at("arrayValue"));
+    result.which_value_type = google_firestore_v1_Value_array_value_tag;
+    result.array_value = DecodeArrayValue(reader, value.at("arrayValue"));
   } else if (value.contains("mapValue")) {
-    return DecodeMapValue(reader, value.at("mapValue"));
+    result.which_value_type = google_firestore_v1_Value_map_value_tag;
+    result.map_value = DecodeMapValue(reader, value.at("mapValue"));
   } else {
     reader.Fail("Failed to decode value, no type is recognized");
     return {};
   }
+  return NullValue();
 }
 
-FieldValue BundleSerializer::DecodeMapValue(JsonReader& reader,
-                                            const json& map_json) const {
+google_firestore_v1_MapValue BundleSerializer::DecodeMapValue(
+    JsonReader& reader, const json& map_json) const {
   if (!map_json.is_object() || !map_json.contains("fields")) {
     reader.Fail("mapValue is not a valid map");
     return {};
@@ -699,37 +713,38 @@ FieldValue BundleSerializer::DecodeMapValue(JsonReader& reader,
     return {};
   }
 
-  immutable::SortedMap<std::string, FieldValue> field_values;
+  // Note: The SDK expects MapValues to be sorted.
+  std::map<std::string, google_firestore_v1_MapValue> sorted_values;
   for (auto it = fields.begin(); it != fields.end(); ++it) {
-    field_values =
-        field_values.insert(it.key(), DecodeValue(reader, it.value()));
+    sorted_values.insert(it.key(), DecodeValue(reader, it.value()));
   }
 
-  return FieldValue::FromMap(std::move(field_values));
+  google_firestore_v1_MapValue map_value{};
+  map_value.fields_count = sorted_values.size();
+
+  auto* field = map_value.fields;
+  for (const auto& entry : sorted_values) {
+    field->key = nanopb::MakeBytesArray(entry.first);
+    field->value = entry.second;
+    ++field;
+  }
+  return map_value;
 }
 
-FieldValue BundleSerializer::DecodeArrayValue(JsonReader& reader,
-                                              const json& array_json) const {
+google_firestore_v1_ArrayValue BundleSerializer::DecodeArrayValue(
+    JsonReader& reader, const json& array_json) const {
   const auto& values = reader.RequiredArray("values", array_json);
-  std::vector<FieldValue> field_values;
+
+  google_firestore_v1_ArrayValue array_value{};
+  array_value.values_count = values.size();
+
+  auto* value = array_value.values;
   for (const json& json_value : values) {
-    field_values.push_back(DecodeValue(reader, json_value));
-  }
-  if (!reader.ok()) {
-    return {};
+    *value = DecodeValue(reader, json_value);
+    ++value;
   }
 
-  return FieldValue::FromArray(std::move(field_values));
-}
-
-FieldValue BundleSerializer::DecodeReferenceValue(
-    JsonReader& reader, const std::string& ref_string) const {
-  // Check if ref_string is indeed a valid string passed in.
-  if (!reader.ok()) {
-    return {};
-  }
-
-  return rpc_serializer_.DecodeReference(&reader, ref_string);
+  return array_value;
 }
 
 BundledDocumentMetadata BundleSerializer::DecodeDocumentMetadata(
@@ -778,9 +793,8 @@ BundleDocument BundleSerializer::DecodeDocument(JsonReader& reader,
 
   auto map_value = DecodeMapValue(reader, document);
 
-  return BundleDocument(Document(ObjectValue::FromMap(map_value.object_value()),
-                                 std::move(key), update_time,
-                                 model::DocumentState::kSynced));
+  return BundleDocument(Document::FoundDocument(
+                                 std::move(key), update_time,ObjectValue::FromMap(map_value));
 }
 
 }  // namespace bundle

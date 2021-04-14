@@ -48,7 +48,8 @@ class KeyFieldNotInFilter::Rep : public FieldFilter::Rep {
   bool Matches(const model::Document& doc) const override;
 };
 
-KeyFieldNotInFilter::KeyFieldNotInFilter(FieldPath field, google_firestore_v1_Value value)
+KeyFieldNotInFilter::KeyFieldNotInFilter(FieldPath field,
+                                         google_firestore_v1_Value value)
     : FieldFilter(
           std::make_shared<const Rep>(std::move(field), std::move(value))) {
 }

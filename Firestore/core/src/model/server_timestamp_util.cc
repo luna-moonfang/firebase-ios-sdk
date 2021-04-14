@@ -29,7 +29,7 @@ const char kPreviousValueKey[] = "__previous_value__";
 const char kServerTimestampSentinel[] = "server_timestamp";
 
 google_firestore_v1_Value EncodeServerTimestamp(
-    google_protobuf_Timestamp local_write_time,
+    const Timestamp& local_write_time,
     absl::optional<google_firestore_v1_Value> previous_value) {
   google_firestore_v1_Value result{};
   result.which_value_type = google_firestore_v1_Value_map_value_tag;
@@ -49,7 +49,8 @@ google_firestore_v1_Value EncodeServerTimestamp(
   ++field;
   field->key = nanopb::MakeBytesArray(kLocalWriteTimeKey);
   field->value.which_value_type = google_firestore_v1_Value_timestamp_value_tag;
-  field->value.timestamp_value = local_write_time;
+  field->value.timestamp_value.seconds = local_write_time.seconds();
+  field->value.timestamp_value.nanos = local_write_time.nanoseconds();
 
   if (previous_value) {
     ++field;

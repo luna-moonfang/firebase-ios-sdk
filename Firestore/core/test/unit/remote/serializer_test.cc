@@ -277,7 +277,7 @@ class SerializerTest : public ::testing::Test {
   }
 
   v1::Value ValueProto(std::nullptr_t) {
-    ByteString bytes = EncodeFieldValue(FieldValue::Null());
+    ByteString bytes = EncodeFieldValue(NullValue());
     return ProtobufParse<v1::Value>(bytes);
   }
 
@@ -584,14 +584,14 @@ class SerializerTest : public ::testing::Test {
 };
 
 TEST_F(SerializerTest, EncodesNull) {
-  FieldValue model = FieldValue::Null();
-  ExpectRoundTrip(model, ValueProto(nullptr), FieldValue::Type::Null);
+  FieldValue model = NullValue();
+  ExpectRoundTrip(model, ValueProto(nullptr), TypeOrder::kNull);
 }
 
 TEST_F(SerializerTest, EncodesBool) {
   for (bool bool_value : {true, false}) {
     FieldValue model = FieldValue::FromBoolean(bool_value);
-    ExpectRoundTrip(model, ValueProto(bool_value), FieldValue::Type::Boolean);
+    ExpectRoundTrip(model, ValueProto(bool_value), TypeOrder::kBoolean);
   }
 }
 
@@ -606,7 +606,7 @@ TEST_F(SerializerTest, EncodesIntegers) {
 
   for (int64_t int_value : cases) {
     FieldValue model = FieldValue::FromInteger(int_value);
-    ExpectRoundTrip(model, ValueProto(int_value), FieldValue::Type::Integer);
+    ExpectRoundTrip(model, ValueProto(int_value), TypeOrder::kInteger);
   }
 }
 
@@ -645,7 +645,7 @@ TEST_F(SerializerTest, EncodesDoubles) {
 
   for (double double_value : cases) {
     FieldValue model = FieldValue::FromDouble(double_value);
-    ExpectRoundTrip(model, ValueProto(double_value), FieldValue::Type::Double);
+    ExpectRoundTrip(model, ValueProto(double_value), TypeOrder::kDouble);
   }
 }
 
@@ -668,7 +668,7 @@ TEST_F(SerializerTest, EncodesString) {
 
   for (const std::string& string_value : cases) {
     FieldValue model = FieldValue::FromString(string_value);
-    ExpectRoundTrip(model, ValueProto(string_value), FieldValue::Type::String);
+    ExpectRoundTrip(model, ValueProto(string_value), TypeOrder::kString);
   }
 }
 
@@ -685,7 +685,7 @@ TEST_F(SerializerTest, EncodesTimestamps) {
 
   for (const Timestamp& ts_value : cases) {
     FieldValue model = FieldValue::FromTimestamp(ts_value);
-    ExpectRoundTrip(model, ValueProto(ts_value), FieldValue::Type::Timestamp);
+    ExpectRoundTrip(model, ValueProto(ts_value), TypeOrder::kTimestamp);
   }
 }
 
@@ -698,7 +698,7 @@ TEST_F(SerializerTest, EncodesBlobs) {
 
   for (const ByteString& blob_value : cases) {
     FieldValue model = FieldValue::FromBlob(blob_value);
-    ExpectRoundTrip(model, ValueProto(blob_value), FieldValue::Type::Blob);
+    ExpectRoundTrip(model, ValueProto(blob_value), TypeOrder::kBlob);
   }
 }
 
@@ -738,7 +738,7 @@ TEST_F(SerializerTest, EncodesReferences) {
   for (const auto& ref_value : cases) {
     FieldValue model =
         FieldValue::FromReference(ref_value.database_id(), ref_value.key());
-    ExpectRoundTrip(model, ValueProto(ref_value), FieldValue::Type::Reference);
+    ExpectRoundTrip(model, ValueProto(ref_value), TypeOrder::kReference);
   }
 }
 
@@ -749,7 +749,7 @@ TEST_F(SerializerTest, EncodesGeoPoint) {
 
   for (const GeoPoint& geo_value : cases) {
     FieldValue model = FieldValue::FromGeoPoint(geo_value);
-    ExpectRoundTrip(model, ValueProto(geo_value), FieldValue::Type::GeoPoint);
+    ExpectRoundTrip(model, ValueProto(geo_value), TypeOrder::kGeoPoint);
   }
 }
 
@@ -772,7 +772,7 @@ TEST_F(SerializerTest, EncodesArray) {
 
   for (const std::vector<FieldValue>& array_value : cases) {
     FieldValue model = FieldValue::FromArray(array_value);
-    ExpectRoundTrip(model, ValueProto(array_value), FieldValue::Type::Array);
+    ExpectRoundTrip(model, ValueProto(array_value), TypeOrder::kArray);
   }
 }
 
@@ -782,7 +782,7 @@ TEST_F(SerializerTest, EncodesEmptyMap) {
   v1::Value proto;
   proto.mutable_map_value();
 
-  ExpectRoundTrip(model, proto, FieldValue::Type::Object);
+  ExpectRoundTrip(model, proto, TypeOrder::kObject);
 }
 
 TEST_F(SerializerTest, EncodesNestedObjects) {
@@ -790,7 +790,7 @@ TEST_F(SerializerTest, EncodesNestedObjects) {
       {"b", FieldValue::True()},
       {"d", FieldValue::FromDouble(std::numeric_limits<double>::max())},
       {"i", FieldValue::FromInteger(1)},
-      {"n", FieldValue::Null()},
+      {"n", NullValue()},
       {"s", FieldValue::FromString("foo")},
       {"a", FieldValue::FromArray(
                 {FieldValue::FromInteger(2), FieldValue::FromString("bar"),
@@ -838,7 +838,7 @@ TEST_F(SerializerTest, EncodesNestedObjects) {
   (*fields)["a"] = array_proto;
   (*fields)["o"] = middle_proto;
 
-  ExpectRoundTrip(model, proto, FieldValue::Type::Object);
+  ExpectRoundTrip(model, proto, TypeOrder::kObject);
 }
 
 TEST_F(SerializerTest, EncodesFieldValuesWithRepeatedEntries) {
@@ -895,12 +895,12 @@ TEST_F(SerializerTest, EncodesFieldValuesWithRepeatedEntries) {
 
   // Ensure the decoded model is as expected.
   FieldValue expected_model = FieldValue::FromInteger(42);
-  EXPECT_EQ(FieldValue::Type::Integer, actual_model.type());
+  EXPECT_EQ(TypeOrder::kInteger, actual_model.type());
   EXPECT_EQ(expected_model, actual_model);
 }
 
 TEST_F(SerializerTest, BadNullValue) {
-  std::vector<uint8_t> bytes = MakeVector(EncodeFieldValue(FieldValue::Null()));
+  std::vector<uint8_t> bytes = MakeVector(EncodeFieldValue(NullValue()));
 
   // Alter the null value from 0 to 1.
   Mutate(&bytes[1], /*expected_initial_value=*/0, /*new_value=*/1);
@@ -982,7 +982,7 @@ TEST_F(SerializerTest, BadFieldValueTagAndNoOtherTagPresent) {
   // assume some sort of default type in this situation, we've decided to fail
   // the deserialization process in this case instead.
 
-  std::vector<uint8_t> bytes = MakeVector(EncodeFieldValue(FieldValue::Null()));
+  std::vector<uint8_t> bytes = MakeVector(EncodeFieldValue(NullValue()));
 
   // The v1::Value value_type oneof currently has tags up to 18. For this test,
   // we'll pick a tag that's unlikely to be added in the near term but still
@@ -1038,12 +1038,12 @@ TEST_F(SerializerTest, BadFieldValueTagWithOtherValidTagsPresent) {
 
   // Ensure the decoded model is as expected.
   FieldValue expected_model = FieldValue::FromBoolean(true);
-  EXPECT_EQ(FieldValue::Type::Boolean, actual_model.type());
+  EXPECT_EQ(TypeOrder::kBoolean, actual_model.type());
   EXPECT_EQ(expected_model, actual_model);
 }
 
 TEST_F(SerializerTest, IncompleteFieldValue) {
-  std::vector<uint8_t> bytes = MakeVector(EncodeFieldValue(FieldValue::Null()));
+  std::vector<uint8_t> bytes = MakeVector(EncodeFieldValue(NullValue()));
   ASSERT_EQ(2u, bytes.size());
 
   // Remove the (null) payload
@@ -2026,15 +2026,13 @@ TEST_F(SerializerTest, EncodesNotInFilter) {
 }
 
 TEST_F(SerializerTest, EncodesNotInFilterWithNull) {
-  auto model =
-      testutil::Filter("item.tags", "not-in", Array(FieldValue::Null()));
+  auto model = testutil::Filter("item.tags", "not-in", Array(NullValue()));
 
   v1::StructuredQuery::Filter proto;
   v1::StructuredQuery::FieldFilter& field = *proto.mutable_field_filter();
   field.mutable_field()->set_field_path("item.tags");
   field.set_op(v1::StructuredQuery::FieldFilter::NOT_IN);
-  *field.mutable_value() =
-      ValueProto(std::vector<FieldValue>{FieldValue::Null()});
+  *field.mutable_value() = ValueProto(std::vector<FieldValue>{NullValue()});
 
   ExpectRoundTrip(model, proto);
 }

@@ -81,7 +81,7 @@ class Serializer {
    * @param database_id Must remain valid for the lifetime of this Serializer
    * object.
    */
-  explicit Serializer(model::DatabaseId database_id);
+  explicit Serializer(const model::DatabaseId& database_id);
 
   /**
    * Encodes the string to nanopb bytes.
@@ -264,9 +264,6 @@ class Serializer {
 
   bool IsLocalResourceName(const model::ResourcePath& path) const;
 
-  google_firestore_v1_Value DecodeReference(
-      util::ReadContext* context, absl::string_view reference_value) const;
-
  private:
   model::Document DecodeFoundDocument(
       util::ReadContext* context,
@@ -291,7 +288,6 @@ class Serializer {
                                const model::ResourcePath& resource_name) const;
   model::DocumentKey DecodeKey(util::ReadContext* context,
                                const model::ResourcePath& resource_name) const;
-
 
   model::DatabaseId DecodeDatabaseId(
       util::ReadContext* context,
@@ -334,7 +330,6 @@ class Serializer {
 
   google_firestore_v1_Cursor EncodeBound(const core::Bound& bound) const;
   std::shared_ptr<core::Bound> DecodeBound(
-      util::ReadContext* context,
       const google_firestore_v1_Cursor& cursor) const;
 
   std::unique_ptr<remote::WatchChange> DecodeTargetChange(
