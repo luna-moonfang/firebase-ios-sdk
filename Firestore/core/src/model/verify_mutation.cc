@@ -38,12 +38,12 @@ VerifyMutation::VerifyMutation(const Mutation& mutation) : Mutation(mutation) {
   HARD_ASSERT(type() == Type::Verify);
 }
 
-void VerifyMutation::Rep::ApplyToRemoteDocument(Document*,
+void VerifyMutation::Rep::ApplyToRemoteDocument(Document&,
                                                 const MutationResult&) const {
   HARD_FAIL("VerifyMutation should only be used in Transactions.");
 }
 
-void VerifyMutation::Rep::ApplyToLocalView(Document*, const Timestamp&) const {
+void VerifyMutation::Rep::ApplyToLocalView(Document&, const Timestamp&) const {
   HARD_FAIL("VerifyMutation should only be used in Transactions.");
 }
 

@@ -65,10 +65,10 @@ class VerifyMutation : public Mutation {
     }
 
     void ApplyToRemoteDocument(
-        Document* document,
+        Document& document,
         const MutationResult& mutation_result) const override;
 
-    void ApplyToLocalView(Document* document, const Timestamp&) const override;
+    void ApplyToLocalView(Document& document, const Timestamp&) const override;
 
     // Does not override Equals or Hash; Mutation's versions are sufficient.
 

@@ -42,7 +42,6 @@ using model::Document;
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::DocumentState;
-using model::MaybeDocument;
 using model::NoDocument;
 using model::SnapshotVersion;
 using model::TargetId;

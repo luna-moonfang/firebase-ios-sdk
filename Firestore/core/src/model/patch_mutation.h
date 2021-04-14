@@ -102,12 +102,12 @@ class PatchMutation : public Mutation {
       return mask_;
     }
 
-    MaybeDocument ApplyToRemoteDocument(
-        Document* document,
+    void ApplyToRemoteDocument(
+        Document& document,
         const MutationResult& mutation_result) const override;
 
-    absl::optional<MaybeDocument> ApplyToLocalView(
-        Document* document, const Timestamp& local_write_time) const override;
+    void ApplyToLocalView(Document& document,
+                          const Timestamp& local_write_time) const override;
 
     bool Equals(const Mutation::Rep& other) const override;
 
@@ -116,12 +116,6 @@ class PatchMutation : public Mutation {
     std::string ToString() const override;
 
    private:
-    ObjectValue PatchDocument(
-        Document* document,
-        const std::vector<FieldValue>& transform_results) const;
-
-    ObjectValue PatchObject(ObjectValue obj) const;
-
     ObjectValue value_;
     FieldMask mask_;
   };

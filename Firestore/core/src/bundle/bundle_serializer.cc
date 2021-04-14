@@ -714,7 +714,7 @@ google_firestore_v1_MapValue BundleSerializer::DecodeMapValue(
   }
 
   // Note: The SDK expects MapValues to be sorted.
-  std::map<std::string, google_firestore_v1_MapValue> sorted_values;
+  std::map<std::string, google_firestore_v1_Value> sorted_values;
   for (auto it = fields.begin(); it != fields.end(); ++it) {
     sorted_values.insert(it.key(), DecodeValue(reader, it.value()));
   }
@@ -794,7 +794,7 @@ BundleDocument BundleSerializer::DecodeDocument(JsonReader& reader,
   auto map_value = DecodeMapValue(reader, document);
 
   return BundleDocument(Document::FoundDocument(
-                                 std::move(key), update_time,ObjectValue::FromMap(map_value));
+      key, update_time, ObjectValue::FromMap(map_value)));
 }
 
 }  // namespace bundle

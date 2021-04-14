@@ -85,7 +85,7 @@ class Query {
    *
    * @param field_path The name of the field to compare.
    * @param op The operator to apply.
-   * @param field_value The value against which to compare the field.
+   * @param value The value against which to compare the field.
    * @param type_describer A function that will produce a description of the
    *     type of field_value.
    *
@@ -93,7 +93,7 @@ class Query {
    */
   Query Filter(model::FieldPath field_path,
                core::Filter::Operator op,
-               google_firestore_v1_Value field_value,
+               google_firestore_v1_Value value,
                const std::function<std::string()>& type_describer) const;
 
   /**
@@ -190,7 +190,7 @@ class Query {
    * is malformed.
    */
   google_firestore_v1_Value ParseExpectedReferenceValue(
-      const google_firestore_v1_Value& field_value,
+      const google_firestore_v1_Value& value,
       const std::function<std::string()>& type_describer) const;
 
   std::string Describe(core::Filter::Operator op) const;

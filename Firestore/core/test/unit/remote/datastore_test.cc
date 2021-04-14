@@ -54,7 +54,6 @@ using auth::CredentialsProvider;
 using core::DatabaseInfo;
 using model::DatabaseId;
 using model::Document;
-using model::MaybeDocument;
 using nanopb::MakeArray;
 using nanopb::Message;
 using testing::Not;

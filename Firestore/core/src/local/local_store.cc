@@ -46,14 +46,13 @@ using core::Query;
 using core::Target;
 using core::TargetIdGenerator;
 using model::BatchId;
+using model::Document;
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::DocumentMap;
 using model::DocumentUpdateMap;
 using model::DocumentVersionMap;
 using model::ListenSequenceNumber;
-using model::MaybeDocument;
-using model::MaybeDocumentMap;
 using model::Mutation;
 using model::MutationBatch;
 using model::MutationBatchResult;
@@ -256,7 +255,7 @@ const SnapshotVersion& LocalStore::GetLastRemoteSnapshotVersion() const {
   return target_cache_->GetLastRemoteSnapshotVersion();
 }
 
-model::MaybeDocumentMap LocalStore::ApplyRemoteEvent(
+model::DocumentMap LocalStore::ApplyRemoteEvent(
     const remote::RemoteEvent& remote_event) {
   const SnapshotVersion& last_remote_version =
       target_cache_->GetLastRemoteSnapshotVersion();

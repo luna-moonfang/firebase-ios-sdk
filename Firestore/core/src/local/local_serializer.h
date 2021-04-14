@@ -87,13 +87,13 @@ class LocalSerializer {
    * local storage.
    */
   nanopb::Message<firestore_client_MaybeDocument> EncodeMaybeDocument(
-      const model::MaybeDocument& maybe_doc) const;
+      const model::Document& maybe_doc) const;
 
   /**
    * @brief Decodes nanopb proto representing a MaybeDocument proto to the
    * equivalent model.
    */
-  model::MaybeDocument DecodeMaybeDocument(
+  model::Document DecodeMaybeDocument(
       nanopb::Reader* reader,
       const firestore_client_MaybeDocument& proto) const;
 

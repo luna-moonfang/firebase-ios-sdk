@@ -162,13 +162,12 @@ class WrappedRemoteDocumentCache : public RemoteDocumentCache {
       : subject_(subject), query_engine_(query_engine) {
   }
 
-  void Add(const model::MaybeDocument& document,
+  void Add(const model::Document& document,
            const model::SnapshotVersion& read_time) override;
 
   void Remove(const model::DocumentKey& key) override;
 
-  absl::optional<model::MaybeDocument> Get(
-      const model::DocumentKey& key) override;
+  absl::optional<model::Document> Get(const model::DocumentKey& key) override;
 
   model::OptionalMaybeDocumentMap GetAll(
       const model::DocumentKeySet& keys) override;

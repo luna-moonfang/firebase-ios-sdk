@@ -236,7 +236,7 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
   void RemoveLimboTarget(const model::DocumentKey& key);
 
   void EmitNewSnapshotsAndNotifyLocalStore(
-      const model::MaybeDocumentMap& changes,
+      const model::DocumentMap& changes,
       const absl::optional<remote::RemoteEvent>& maybe_remote_event);
 
   /** Updates the limbo document state for the given target_id. */

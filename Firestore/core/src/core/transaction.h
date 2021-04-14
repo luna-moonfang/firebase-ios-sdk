@@ -49,8 +49,8 @@ class ParsedUpdateData;
 
 class Transaction {
  public:
-  using LookupCallback = std::function<void(
-      const util::StatusOr<std::vector<model::MaybeDocument>>&)>;
+  using LookupCallback =
+      std::function<void(const util::StatusOr<std::vector<model::Document>>&)>;
 
   Transaction() = default;
   explicit Transaction(remote::Datastore* transaction);
@@ -105,7 +105,7 @@ class Transaction {
    * error. When the transaction is committed, the versions recorded will be set
    * as preconditions on the writes sent to the backend.
    */
-  util::Status RecordVersion(const model::MaybeDocument& doc);
+  util::Status RecordVersion(const model::Document& doc);
 
   /** Stores mutations to be written when `Commit` is called. */
   void WriteMutations(std::vector<model::Mutation>&& mutations);

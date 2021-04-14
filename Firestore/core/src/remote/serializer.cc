@@ -85,7 +85,6 @@ using model::FieldPath;
 using model::FieldTransform;
 using model::IsNaNValue;
 using model::IsNullValue;
-using model::MaybeDocument;
 using model::Mutation;
 using model::MutationResult;
 using model::NaNValue;

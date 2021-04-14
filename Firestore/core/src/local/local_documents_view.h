@@ -57,7 +57,7 @@ class LocalDocumentsView {
    * @return Local view of the document or nil if we don't have any cached state
    * for it.
    */
-  absl::optional<model::MaybeDocument> GetDocument(
+  absl::optional<const model::Document> GetDocument(
       const model::DocumentKey& key);
 
   /**
@@ -66,14 +66,14 @@ class LocalDocumentsView {
    * If we don't have cached state for a document in `keys`, a DeletedDocument
    * will be stored for that key in the resulting set.
    */
-  model::MaybeDocumentMap GetDocuments(const model::DocumentKeySet& keys);
+  model::DocumentMap GetDocuments(const model::DocumentKeySet& keys);
 
   /**
    * Similar to `GetDocuments`, but creates the local view from the given
    * `base_docs` without retrieving documents from the local store.
    */
-  model::MaybeDocumentMap GetLocalViewOfDocuments(
-      const model::OptionalMaybeDocumentMap& base_docs);
+  model::DocumentMap GetLocalViewOfDocuments(
+      const model::DocumentMap& base_docs);
 
   /**
    * Performs a query against the local view of all documents.
@@ -90,7 +90,7 @@ class LocalDocumentsView {
   friend class CountingQueryEngine;  // For testing
 
   /** Internal version of GetDocument that allows re-using batches. */
-  absl::optional<model::MaybeDocument> GetDocument(
+  absl::optional<model::Document> GetDocument(
       const model::DocumentKey& key,
       const std::vector<model::MutationBatch>& batches);
 
@@ -98,8 +98,8 @@ class LocalDocumentsView {
    * Returns the view of the given `docs` as they would appear after applying
    * all mutations in the given `batches`.
    */
-  model::OptionalMaybeDocumentMap ApplyLocalMutationsToDocuments(
-      const model::OptionalMaybeDocumentMap& docs,
+  void ApplyLocalMutationsToDocuments(
+      model::MutableDocumentMap* docs,
       const std::vector<model::MutationBatch>& batches);
 
   /** Performs a simple document lookup for the given path. */

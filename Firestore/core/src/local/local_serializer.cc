@@ -56,7 +56,6 @@ using core::Target;
 using model::Document;
 using model::DocumentState;
 using model::FieldTransform;
-using model::MaybeDocument;
 using model::Mutation;
 using model::MutationBatch;
 using model::NoDocument;

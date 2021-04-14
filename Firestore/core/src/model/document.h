@@ -84,16 +84,17 @@ class Document {
   };
 
  public:
-  // Document contain Proto data that cannot be implicitly created or
-  // copied.
-  Document() = delete;
-  Document(const Document&) = delete;
+  // Document contain Proto data that cannot be implicitly created or copied.
   Document& operator=(const Document&) = delete;
+
+  Document(const Document& other);
+
+  Document() = default;
 
   Document(Document&& other) noexcept
       : key_{std::move(other.key_)},
         document_type_{other.document_type_},
-        version_{std::move(other.version_)},
+        version_{other.version_},
         value_{std::move(other.value_)},
         document_state_{other.document_state_} {
   }
@@ -199,6 +200,8 @@ class Document {
   bool is_unknown_document() const {
     return document_type_ == DocumentType ::kUnknownDocument;
   }
+
+  size_t Hash() const;
 
   std::string ToString() const;
 

@@ -353,7 +353,7 @@ class WatchChangeAggregator {
    * document key to the given target's mapping.
    */
   void AddDocumentToTarget(model::TargetId target_id,
-                           const model::MaybeDocument& document);
+                           const model::Document& document);
 
   /**
    * Removes the provided document from the target mapping. If the document no
@@ -365,7 +365,7 @@ class WatchChangeAggregator {
   void RemoveDocumentFromTarget(
       model::TargetId target_id,
       const model::DocumentKey& key,
-      const absl::optional<model::MaybeDocument>& updated_document);
+      const absl::optional<model::Document>& updated_document);
 
   /**
    * Returns the current count of documents in the target. This includes both

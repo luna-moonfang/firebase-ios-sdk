@@ -22,13 +22,11 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-/* static */
 Document Document::InvalidDocument(const DocumentKey& document_key) {
   return {document_key, DocumentType::kInvalid, SnapshotVersion::None(),
           ObjectValue{}, DocumentState::kSynced};
 }
 
-/* static */
 Document Document::FoundDocument(const DocumentKey& document_key,
                                  const SnapshotVersion& version,
                                  ObjectValue value) {
@@ -36,17 +34,23 @@ Document Document::FoundDocument(const DocumentKey& document_key,
                        .ConvertToFoundDocument(version, std::move(value)));
 }
 
-/* static */
 Document Document::NoDocument(const DocumentKey& document_key,
                               const SnapshotVersion& version) {
   return std::move(InvalidDocument(document_key).ConvertToNoDocument(version));
 }
 
-/* static */
 Document Document::UnknownDocument(const DocumentKey& document_key,
                                    const SnapshotVersion& version) {
   return std::move(
       InvalidDocument(document_key).ConvertToUnknownDocument(version));
+}
+
+Document::Document(const Document& other)
+    : key_{other.key_},
+      document_type_{other.document_type_},
+      version_{other.version_},
+      value_{other.value_},
+      document_state_{other.document_state_} {
 }
 
 Document& Document::ConvertToFoundDocument(const SnapshotVersion& version,
@@ -82,6 +86,10 @@ Document& Document::SetHasCommittedMutations() {
 Document& Document::SetHasLocalMutations() {
   document_state_ = DocumentState::kHasLocalMutations;
   return *this;
+}
+
+size_t Document::Hash() const {
+  return key_.Hash();
 }
 
 std::string Document::ToString() const {

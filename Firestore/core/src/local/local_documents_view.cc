@@ -27,7 +27,6 @@
 #include "Firestore/core/src/model/document_key_set.h"
 #include "Firestore/core/src/model/document_map.h"
 #include "Firestore/core/src/model/mutation_batch.h"
-#include "Firestore/core/src/model/no_document.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/model/snapshot_version.h"
 #include "Firestore/core/src/util/hard_assert.h"
@@ -41,25 +40,23 @@ using model::Document;
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::DocumentMap;
-using model::MaybeDocument;
-using model::MaybeDocumentMap;
+using model::MutableDocumentMap;
 using model::Mutation;
 using model::MutationBatch;
 using model::NoDocument;
-using model::OptionalMaybeDocumentMap;
 using model::ResourcePath;
 using model::SnapshotVersion;
 
-absl::optional<MaybeDocument> LocalDocumentsView::GetDocument(
+absl::optional<Document> LocalDocumentsView::GetDocument(
     const DocumentKey& key) {
   std::vector<MutationBatch> batches =
       mutation_queue_->AllMutationBatchesAffectingDocumentKey(key);
   return GetDocument(key, batches);
 }
 
-absl::optional<MaybeDocument> LocalDocumentsView::GetDocument(
+absl::optional<Document> LocalDocumentsView::GetDocument(
     const DocumentKey& key, const std::vector<MutationBatch>& batches) {
-  absl::optional<MaybeDocument> document = remote_document_cache_->Get(key);
+  absl::optional<Document> document = remote_document_cache_->Get(key);
   for (const MutationBatch& batch : batches) {
     document = batch.ApplyToLocalDocument(document, key);
   }
@@ -67,24 +64,19 @@ absl::optional<MaybeDocument> LocalDocumentsView::GetDocument(
   return document;
 }
 
-OptionalMaybeDocumentMap LocalDocumentsView::ApplyLocalMutationsToDocuments(
-    const OptionalMaybeDocumentMap& docs,
-    const std::vector<MutationBatch>& batches) {
-  OptionalMaybeDocumentMap results;
-
-  for (const auto& kv : docs) {
+void LocalDocumentsView::ApplyLocalMutationsToDocuments(
+    MutableDocumentMap* docs, const std::vector<MutationBatch>& batches) {
+  for (const auto& kv : *docs) {
     const DocumentKey& key = kv.first;
-    absl::optional<MaybeDocument> local_view = kv.second;
+    absl::optional<Document> local_view = kv.second;
     for (const MutationBatch& batch : batches) {
-      local_view = batch.ApplyToLocalDocument(local_view, key);
+      batch.ApplyToLocalDocument(local_view, key);
     }
-    results = results.insert(key, local_view);
   }
-  return results;
 }
 
-MaybeDocumentMap LocalDocumentsView::GetDocuments(const DocumentKeySet& keys) {
-  OptionalMaybeDocumentMap docs = remote_document_cache_->GetAll(keys);
+DocumentMap LocalDocumentsView::GetDocuments(const DocumentKeySet& keys) {
+  MutableDocumentMap docs = remote_document_cache_->GetAll(keys);
   return GetLocalViewOfDocuments(docs);
 }
 

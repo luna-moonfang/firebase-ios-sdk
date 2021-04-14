@@ -35,7 +35,7 @@ using firestore::Error;
 using firestore::api::LoadBundleTaskProgress;
 using firestore::api::LoadBundleTaskState;
 using model::DocumentKeySet;
-using model::MaybeDocumentMap;
+using model::DocumentMap;
 using model::NoDocument;
 using util::Status;
 using util::StatusOr;

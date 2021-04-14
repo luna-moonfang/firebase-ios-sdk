@@ -173,6 +173,10 @@ ObjectValue::ObjectValue() {
   value_->map_value.fields = nullptr;
 }
 
+ObjectValue::ObjectValue(const ObjectValue& other)
+    : value_(DeepClone(*other.value_)) {
+}
+
 ObjectValue ObjectValue::FromMap(google_firestore_v1_MapValue map_value) {
   google_firestore_v1_Value value{};
   value.which_value_type = google_firestore_v1_Value_map_value_tag;

@@ -17,7 +17,6 @@
 #include "Firestore/core/src/api/document_snapshot.h"
 
 #include "Firestore/core/src/api/document_reference.h"
-#include "Firestore/core/src/model/field_value.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/util/hashing.h"
 #include "absl/types/optional.h"
@@ -26,7 +25,6 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
-using google_firestore_v1_Value;
 using model::Document;
 using model::DocumentKey;
 using model::FieldPath;
@@ -84,10 +82,10 @@ absl::optional<ObjectValue> DocumentSnapshot::GetData() const {
                             : absl::optional<ObjectValue>{};
 }
 
-absl::optional<FieldValue> DocumentSnapshot::GetValue(
+absl::optional<google_firestore_v1_Value> DocumentSnapshot::GetValue(
     const FieldPath& field_path) const {
   return internal_document_ ? internal_document_->field(field_path)
-                            : absl::optional<ObjectValue>{};
+                            : absl::optional<google_firestore_v1_Value>{};
 }
 
 bool operator==(const DocumentSnapshot& lhs, const DocumentSnapshot& rhs) {

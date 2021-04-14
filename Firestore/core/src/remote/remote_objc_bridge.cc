@@ -40,8 +40,8 @@ namespace remote {
 
 using core::DatabaseInfo;
 using local::TargetData;
+using model::Document;
 using model::DocumentKey;
-using model::MaybeDocument;
 using model::Mutation;
 using model::MutationResult;
 using model::SnapshotVersion;
@@ -239,7 +239,7 @@ DatastoreSerializer::EncodeLookupRequest(
   return result;
 }
 
-StatusOr<std::vector<model::MaybeDocument>>
+StatusOr<std::vector<model::Document>>
 DatastoreSerializer::MergeLookupResponses(
     const std::vector<grpc::ByteBuffer>& responses) const {
   // Sort by key.
@@ -266,7 +266,7 @@ DatastoreSerializer::MergeLookupResponses(
     docs.push_back(kv.second);
   }
 
-  StatusOr<std::vector<model::MaybeDocument>> result{std::move(docs)};
+  StatusOr<std::vector<model::Document>> result{std::move(docs)};
   return result;
 }
 

@@ -86,7 +86,6 @@ using model::DeleteMutation;
 using model::Document;
 using model::DocumentKey;
 using model::FieldPath;
-using model::MaybeDocument;
 using model::Mutation;
 using model::MutationResult;
 using model::NoDocument;

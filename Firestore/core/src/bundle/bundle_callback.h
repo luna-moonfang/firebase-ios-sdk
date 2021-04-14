@@ -41,9 +41,8 @@ class BundleCallback {
    * Local documents are re-calculated if there are remaining mutations in the
    * queue.
    */
-  virtual model::MaybeDocumentMap ApplyBundledDocuments(
-      const model::MaybeDocumentMap& documents,
-      const std::string& bundle_id) = 0;
+  virtual model::DocumentMap ApplyBundledDocuments(
+      const model::DocumentMap& documents, const std::string& bundle_id) = 0;
 
   /** Saves the given NamedQuery to local persistence. */
   virtual void SaveNamedQuery(const NamedQuery& query,

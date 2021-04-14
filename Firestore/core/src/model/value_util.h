@@ -58,8 +58,8 @@ util::ComparisonResult Compare(const google_firestore_v1_Value& left,
 bool Equals(const google_firestore_v1_Value& left,
             const google_firestore_v1_Value& right);
 
-bool ArrayEquals(const google_firestore_v1_Value& left,
-                 const google_firestore_v1_Value& right);
+bool ArrayEquals(const google_firestore_v1_ArrayValue& left,
+                 const google_firestore_v1_ArrayValue& right);
 
 /**
  * Generate the canonical ID for the provided field value (as used in Target

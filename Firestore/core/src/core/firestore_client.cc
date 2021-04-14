@@ -86,7 +86,6 @@ using model::DatabaseId;
 using model::Document;
 using model::DocumentKeySet;
 using model::DocumentMap;
-using model::MaybeDocument;
 using model::Mutation;
 using model::OnlineState;
 using remote::ConnectivityMonitor;

@@ -141,7 +141,7 @@ void WrappedMutationQueue::SetLastStreamToken(nanopb::ByteString stream_token) {
 
 // MARK: - WrappedRemoteDocumentCache
 
-void WrappedRemoteDocumentCache::Add(const model::MaybeDocument& document,
+void WrappedRemoteDocumentCache::Add(const model::Document& document,
                                      const model::SnapshotVersion& read_time) {
   subject_->Add(document, read_time);
 }
@@ -150,7 +150,7 @@ void WrappedRemoteDocumentCache::Remove(const model::DocumentKey& key) {
   subject_->Remove(key);
 }
 
-absl::optional<model::MaybeDocument> WrappedRemoteDocumentCache::Get(
+absl::optional<model::Document> WrappedRemoteDocumentCache::Get(
     const model::DocumentKey& key) {
   auto result = subject_->Get(key);
   query_engine_->documents_read_by_key_ += result ? 1 : 0;

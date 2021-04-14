@@ -72,7 +72,6 @@ using model::DocumentState;
 using model::FieldMask;
 using model::FieldPath;
 using model::ListenSequenceNumber;
-using model::MaybeDocument;
 using model::Mutation;
 using model::MutationBatch;
 using model::NoDocument;

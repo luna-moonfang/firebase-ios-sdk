@@ -40,10 +40,10 @@ DeleteMutation::DeleteMutation(const Mutation& mutation) : Mutation(mutation) {
 }
 
 void DeleteMutation::Rep::ApplyToRemoteDocument(
-    Document* document, const MutationResult& mutation_result) const {
-  VerifyKeyMatches(*document);
+    Document& document, const MutationResult& mutation_result) const {
+  VerifyKeyMatches(document);
 
-  HARD_ASSERT(mutation_result.transform_results() == absl::nullopt,
+  HARD_ASSERT(mutation_result.transform_results().values_count == 0,
               "Transform results received by DeleteMutation.");
 
   // Unlike ApplyToLocalView, if we're applying a mutation to a remote document
@@ -52,16 +52,16 @@ void DeleteMutation::Rep::ApplyToRemoteDocument(
   // We store the deleted document at the commit version of the delete. Any
   // document version that the server sends us before the delete was applied is
   // discarded.
-  document->ConvertToNoDocument(mutation_result.version())
+  document.ConvertToNoDocument(mutation_result.version())
       .SetHasCommittedMutations();
 }
 
-void DeleteMutation::Rep::ApplyToLocalView(Document* document,
+void DeleteMutation::Rep::ApplyToLocalView(Document& document,
                                            const Timestamp&) const {
-  VerifyKeyMatches(*document);
+  VerifyKeyMatches(document);
 
-  if (precondition().IsValidFor(*document)) {
-    document->ConvertToNoDocument(SnapshotVersion::None());
+  if (precondition().IsValidFor(document)) {
+    document.ConvertToNoDocument(SnapshotVersion::None());
   }
 }
 

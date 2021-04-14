@@ -48,11 +48,11 @@ bool operator==(const MutationResult& lhs, const MutationResult& rhs) {
 }
 
 void Mutation::ApplyToRemoteDocument(
-    Document* document, const MutationResult& mutation_result) const {
+    Document& document, const MutationResult& mutation_result) const {
   return rep().ApplyToRemoteDocument(document, mutation_result);
 }
 
-void Mutation::ApplyToLocalView(Document* document,
+void Mutation::ApplyToLocalView(Document& document,
                                 const Timestamp& local_write_time) const {
   return rep().ApplyToLocalView(document, local_write_time);
 }
@@ -112,28 +112,28 @@ SnapshotVersion Mutation::Rep::GetPostMutationVersion(
 }
 
 void Mutation::Rep::ApplyServerTransformResults(
-    ObjectValue* new_value,
+    ObjectValue& value,
     const Document& existing_data,
-    const std::vector<google_firestore_v1_Value>& server_transform_results)
-    const {
-  HARD_ASSERT(field_transforms_.size() == server_transform_results.size(),
+    const google_firestore_v1_ArrayValue& server_transform_results) const {
+  HARD_ASSERT(field_transforms_.size() == server_transform_results.values_count,
               "server transform result size (%s) should match field transforms "
               "size (%s)",
-              server_transform_results.size(), field_transforms_.size());
+              server_transform_results.values_count, field_transforms_.size());
 
-  for (size_t i = 0; i < server_transform_results.size(); i++) {
+  for (size_t i = 0; i < server_transform_results.values_count; i++) {
     const FieldTransform& field_transform = field_transforms_[i];
     const TransformOperation& transform = field_transform.transformation();
     absl::optional<google_firestore_v1_Value> previous_value =
         existing_data.field(field_transform.path());
-    google_firestore_v1_Value transformed_value =transform.ApplyToRemoteDocument(
-        previous_value, server_transform_results[i]));
-    new_value->Set(field_transform.path(), transformed_value);
+    google_firestore_v1_Value transformed_value =
+        transform.ApplyToRemoteDocument(previous_value,
+                                        server_transform_results.values[i]);
+    value.Set(field_transform.path(), transformed_value);
   }
 }
 
 void Mutation::Rep::ApplyLocalTransformResults(
-    ObjectValue* new_value,
+    ObjectValue& value,
     const Document& existing_data,
     const Timestamp& local_write_time) const {
   for (const FieldTransform& field_transform : field_transforms_) {
@@ -142,7 +142,7 @@ void Mutation::Rep::ApplyLocalTransformResults(
         existing_data.field(field_transform.path());
     google_firestore_v1_Value transformed_value =
         transform.ApplyToLocalView(previous_value, local_write_time);
-    new_value->Set(field_transform.path(), transformed_value);
+    value.Set(field_transform.path(), transformed_value);
   }
 }
 

@@ -110,7 +110,7 @@ void QuerySnapshot::ForEachChange(
     // fast. Also all changes on the first snapshot are adds so there are also
     // no metadata-only changes to filter out.
     DocumentComparator doc_comparator = snapshot_.query().Comparator();
-    absl::optional<Document> last_document;
+    const Document* last_document = nullptr;
     size_t index = 0;
     for (const DocumentViewChange& change : snapshot_.document_changes()) {
       const Document& doc = change.document();
@@ -128,7 +128,7 @@ void QuerySnapshot::ForEachChange(
 
       callback(DocumentChange(DocumentChange::Type::Added, std::move(document),
                               DocumentChange::npos, index++));
-      last_document = doc;
+      last_document = &doc;
     }
 
   } else {

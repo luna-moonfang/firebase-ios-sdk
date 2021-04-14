@@ -72,7 +72,7 @@ class BundleLoader {
    * Applies the loaded documents and queries to local store. Returns the
    * document view changes. If an error occurred, returns a not `ok()` status.
    */
-  util::StatusOr<model::MaybeDocumentMap> ApplyChanges();
+  util::StatusOr<model::DocumentMap> ApplyChanges();
 
  private:
   /**
@@ -95,7 +95,7 @@ class BundleLoader {
                      BundledDocumentMetadata,
                      model::DocumentKeyHash>
       documents_metadata_;
-  model::MaybeDocumentMap documents_;
+  model::DocumentMap documents_;
 
   uint64_t bytes_loaded_ = 0;
   absl::optional<model::DocumentKey> current_document_;

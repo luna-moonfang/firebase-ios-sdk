@@ -29,9 +29,8 @@ namespace core {
 using model::Document;
 using model::DocumentKey;
 using model::DocumentKeySet;
+using model::DocumentMap;
 using model::DocumentSet;
-using model::MaybeDocument;
-using model::MaybeDocumentMap;
 using model::OnlineState;
 using remote::TargetChange;
 using util::ComparisonResult;

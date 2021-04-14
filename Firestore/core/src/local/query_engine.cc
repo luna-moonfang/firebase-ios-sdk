@@ -38,8 +38,6 @@ using model::Document;
 using model::DocumentKeySet;
 using model::DocumentMap;
 using model::DocumentSet;
-using model::MaybeDocument;
-using model::MaybeDocumentMap;
 using model::SnapshotVersion;
 
 DocumentMap QueryEngine::GetDocumentsMatchingQuery(

@@ -43,7 +43,7 @@ using api::LoadBundleTaskProgress;
 using api::LoadBundleTaskState;
 using core::LimitType;
 using model::DocumentKeySet;
-using model::MaybeDocumentMap;
+using model::DocumentMap;
 using util::StatusOr;
 
 class BundleLoaderTest : public ::testing::Test {
@@ -53,8 +53,8 @@ class BundleLoaderTest : public ::testing::Test {
     explicit TestBundleCallback(BundleLoaderTest& parant) : parent_(parant) {
     }
 
-    model::MaybeDocumentMap ApplyBundledDocuments(
-        const model::MaybeDocumentMap& documents,
+    model::DocumentMap ApplyBundledDocuments(
+        const model::DocumentMap& documents,
         const std::string& bundle_id) override {
       (void)bundle_id;
       for (const auto& entry : documents) {

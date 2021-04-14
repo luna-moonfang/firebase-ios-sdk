@@ -33,8 +33,6 @@ using model::DocumentKey;
 using model::DocumentKeySet;
 using model::DocumentMap;
 using model::ListenSequenceNumber;
-using model::MaybeDocument;
-using model::MaybeDocumentMap;
 using model::OptionalMaybeDocumentMap;
 using model::SnapshotVersion;
 

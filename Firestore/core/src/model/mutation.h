@@ -29,6 +29,7 @@
 #include "Firestore/core/src/model/object_value.h"
 #include "Firestore/core/src/model/precondition.h"
 #include "Firestore/core/src/model/snapshot_version.h"
+#include "Firestore/core/src/nanopb/message.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -48,9 +49,8 @@ class Document;
 class MutationResult {
  public:
   MutationResult(SnapshotVersion version,
-                 absl::optional<const std::vector<google_firestore_v1_Value>>
-                     transform_results)
-      : version_(version), transform_results_(std::move(transform_results)) {
+                 google_firestore_v1_ArrayValue transform_results)
+      : version_(version), transform_results_{transform_results} {
   }
 
   /**
@@ -74,9 +74,8 @@ class MutationResult {
    *
    * Will be nullopt if the mutation was not a TransformMutation.
    */
-  const absl::optional<const std::vector<google_firestore_v1_Value>>&
-  transform_results() const {
-    return transform_results_;
+  const google_firestore_v1_ArrayValue& transform_results() const {
+    return *transform_results_;
   }
 
   std::string ToString() const;
@@ -88,8 +87,7 @@ class MutationResult {
 
  private:
   SnapshotVersion version_;
-  absl::optional<const std::vector<google_firestore_v1_Value>>
-      transform_results_;
+  nanopb::Message<google_firestore_v1_ArrayValue> transform_results_;
 };
 
 /**
@@ -192,7 +190,7 @@ class Mutation {
    *     cache might have caused a `nullopt` result, this method will return an
    *     `UnknownDocument` instead.
    */
-  void ApplyToRemoteDocument(Document* document,
+  void ApplyToRemoteDocument(Document& document,
                              const MutationResult& mutation_result) const;
 
   /**
@@ -210,7 +208,7 @@ class Mutation {
    *     only if maybe_doc was nullopt and the mutation would not create a new
    *     document.
    */
-  void ApplyToLocalView(Document* document,
+  void ApplyToLocalView(Document& document,
                         const Timestamp& local_write_time) const;
 
   /**
@@ -272,9 +270,9 @@ class Mutation {
     }
 
     virtual void ApplyToRemoteDocument(
-        Document* document, const MutationResult& mutation_result) const = 0;
+        Document& document, const MutationResult& mutation_result) const = 0;
 
-    virtual void ApplyToLocalView(Document* document,
+    virtual void ApplyToLocalView(Document& document,
                                   const Timestamp& local_write_time) const = 0;
 
     virtual absl::optional<ObjectValue> ExtractTransformBaseValue(
@@ -283,29 +281,28 @@ class Mutation {
     /**
      * Applies the result of applying a transform by the backend.
      *
-     * @param new_value The object value to mutate.
+     * @param value The object value to mutate.
      * @param existing_data The current state of the document after applying all
      * previous mutations.
      * @param server_transform_results The transform results received by the
      *     server.
      */
     void ApplyServerTransformResults(
-        ObjectValue* new_value,
+        ObjectValue& value,
         const Document& existing_data,
-        const std::vector<google_firestore_v1_Value>& server_transform_results)
-        const;
+        const google_firestore_v1_ArrayValue& server_transform_results) const;
 
     /**
      * Applies the result of a transform locally.
      *
-     * @param new_value The object value to mutate.
+     * @param value The object value to mutate.
      * @param existing_data The current state of the document after applying all
      * previous mutations.
      * @param local_write_time The local time of the transform (used to
      *     generate ServerTimestampValues).
      */
     virtual void ApplyLocalTransformResults(
-        ObjectValue* new_value,
+        ObjectValue& value,
         const Document& existing_data,
         const Timestamp& local_write_time) const;
 

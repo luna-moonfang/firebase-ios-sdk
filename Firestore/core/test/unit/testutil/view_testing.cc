@@ -31,13 +31,11 @@ using core::ViewChange;
 using core::ViewSnapshot;
 using model::Document;
 using model::DocumentKeySet;
-using model::MaybeDocument;
-using model::MaybeDocumentMap;
+using model::DocumentMap;
 using nanopb::ByteString;
 using remote::TargetChange;
 
-model::MaybeDocumentMap DocUpdates(
-    const std::vector<model::MaybeDocument>& docs) {
+model::DocumentMap DocUpdates(const std::vector<model::Document>& docs) {
   MaybeDocumentMap updates;
   for (const MaybeDocument& doc : docs) {
     updates = updates.insert(doc.key(), doc);

@@ -248,8 +248,8 @@ ComparisonResult Compare(const google_firestore_v1_Value& left,
   }
 }
 
-bool NumberEquals(const firebase::firestore::google_firestore_v1_Value& left,
-                  const firebase::firestore::google_firestore_v1_Value& right) {
+bool NumberEquals(const google_firestore_v1_Value& left,
+                  const google_firestore_v1_Value& right) {
   if (left.which_value_type == google_firestore_v1_Value_integer_value_tag &&
       right.which_value_type == google_firestore_v1_Value_integer_value_tag) {
     return left.integer_value == right.integer_value;
@@ -262,17 +262,14 @@ bool NumberEquals(const firebase::firestore::google_firestore_v1_Value& left,
   return false;
 }
 
-bool ArrayEquals(const firebase::firestore::google_firestore_v1_Value& left,
-                 const firebase::firestore::google_firestore_v1_Value& right) {
-  const google_firestore_v1_ArrayValue& left_array = left.array_value;
-  const google_firestore_v1_ArrayValue& right_array = right.array_value;
-
-  if (left_array.values_count != right_array.values_count) {
+bool ArrayEquals(const google_firestore_v1_ArrayValue& left,
+                 const google_firestore_v1_ArrayValue& right) {
+  if (left.values_count != right.values_count) {
     return false;
   }
 
-  for (size_t i = 0; i < left_array.values_count; ++i) {
-    if (left_array.values[i] != right_array.values[i]) {
+  for (size_t i = 0; i < left.values_count; ++i) {
+    if (left.values[i] != right.values[i]) {
       return false;
     }
   }
@@ -280,24 +277,21 @@ bool ArrayEquals(const firebase::firestore::google_firestore_v1_Value& left,
   return true;
 }
 
-bool ObjectEquals(const firebase::firestore::google_firestore_v1_Value& left,
-                  const firebase::firestore::google_firestore_v1_Value& right) {
-  google_firestore_v1_MapValue left_map = left.map_value;
-  google_firestore_v1_MapValue right_map = right.map_value;
-
-  if (left_map.fields_count != right_map.fields_count) {
+bool ObjectEquals(const google_firestore_v1_MapValue& left,
+                  const google_firestore_v1_MapValue& right) {
+  if (left.fields_count != right.fields_count) {
     return false;
   }
 
   // Porting Note: MapValues in iOS are always kept in sorted order. We
   // therefore do no need to sort them before comparing.
-  for (size_t i = 0; i < right_map.fields_count; ++i) {
-    if (nanopb::MakeStringView(left_map.fields[i].key) !=
-        nanopb::MakeStringView(right_map.fields[i].key)) {
+  for (size_t i = 0; i < right.fields_count; ++i) {
+    if (nanopb::MakeStringView(left.fields[i].key) !=
+        nanopb::MakeStringView(right.fields[i].key)) {
       return false;
     }
 
-    if (left_map.fields[i].value != right_map.fields[i].value) {
+    if (left.fields[i].value != right.fields[i].value) {
       return false;
     }
   }
@@ -350,10 +344,10 @@ bool Equals(const google_firestore_v1_Value& lhs,
              lhs.geo_point_value.longitude == rhs.geo_point_value.longitude;
 
     case TypeOrder::kArray:
-      return ArrayEquals(lhs, rhs);
+      return ArrayEquals(lhs.array_value, rhs.array_value);
 
     case TypeOrder::kMap:
-      return ObjectEquals(lhs, rhs);
+      return ObjectEquals(lhs.map_value, rhs.map_value);
 
     default:
       HARD_FAIL("Invalid type value: %s", left_type);

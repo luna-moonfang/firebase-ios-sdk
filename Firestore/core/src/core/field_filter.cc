@@ -83,7 +83,9 @@ const char* CanonicalName(Filter::Operator op) {
 
 FieldFilter FieldFilter::Create(FieldPath path,
                                 Operator op,
-                                google_firestore_v1_Value value_rhs) {
+
+                                using model::ResourcePath;
+                                value_rhs) {
   if (path.IsKeyFieldPath()) {
     if (op == Filter::Operator::In) {
       return KeyFieldInFilter(std::move(path), value_rhs);

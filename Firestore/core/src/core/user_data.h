@@ -26,7 +26,6 @@
 #include "Firestore/core/src/model/field_mask.h"
 #include "Firestore/core/src/model/field_path.h"
 #include "Firestore/core/src/model/field_transform.h"
-#include "Firestore/core/src/model/field_value.h"
 
 namespace firebase {
 namespace firestore {

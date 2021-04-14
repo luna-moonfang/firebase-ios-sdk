@@ -44,8 +44,6 @@ using model::DocumentKey;
 using model::DocumentKeySet;
 using model::DocumentMap;
 using model::DocumentState;
-using model::MaybeDocument;
-using model::MaybeDocumentMap;
 using model::NoDocument;
 using model::OptionalMaybeDocumentMap;
 using model::SnapshotVersion;

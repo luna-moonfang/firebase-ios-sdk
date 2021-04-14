@@ -25,6 +25,9 @@ namespace firestore {
 namespace core {
 class Query;
 }  // namespace core
+namespace model {
+class DocumentMap;
+}  // namespace model
 
 namespace local {
 
@@ -49,7 +52,7 @@ class RemoteDocumentCache {
    * @param document A Document or DeletedDocument to put in the cache.
    * @param read_time The time at which the document was read or committed.
    */
-  virtual void Add(const model::MaybeDocument& document,
+  virtual void Add(const model::Document& document,
                    const model::SnapshotVersion& read_time) = 0;
 
   /** Removes the cached entry for the given key (no-op if no entry exists). */
@@ -62,8 +65,7 @@ class RemoteDocumentCache {
    * @return The cached Document or DeletedDocument entry, or nullopt if we
    * have nothing cached.
    */
-  virtual absl::optional<model::MaybeDocument> Get(
-      const model::DocumentKey& key) = 0;
+  virtual model::Document Get(const model::DocumentKey& key) = 0;
 
   /**
    * Looks up a set of entries in the cache.
@@ -72,8 +74,7 @@ class RemoteDocumentCache {
    * @return The cached Document or NoDocument entries indexed by key. If an
    * entry is not cached, the corresponding key will be mapped to a null value.
    */
-  virtual model::OptionalMaybeDocumentMap GetAll(
-      const model::DocumentKeySet& keys) = 0;
+  virtual model::DocumentMap GetAll(const model::DocumentKeySet& keys) = 0;
 
   /**
    * Executes a query against the cached Document entries

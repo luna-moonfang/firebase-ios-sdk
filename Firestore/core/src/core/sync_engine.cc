@@ -63,7 +63,6 @@ using model::DocumentMap;
 using model::DocumentUpdateMap;
 using model::kBatchIdUnknown;
 using model::ListenSequenceNumber;
-using model::MaybeDocumentMap;
 using model::NoDocument;
 using model::SnapshotVersion;
 using model::TargetId;

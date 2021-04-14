@@ -39,7 +39,7 @@ using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::core::Transaction;
 using firebase::firestore::model::Document;
-using firebase::firestore::model::MaybeDocument;
+using firebase::firestore::model::Document;
 using firebase::firestore::util::MakeNSError;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;

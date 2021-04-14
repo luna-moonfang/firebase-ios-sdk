@@ -60,8 +60,6 @@ using model::DocumentKeySet;
 using model::DocumentMap;
 using model::DocumentState;
 using model::ListenSequenceNumber;
-using model::MaybeDocument;
-using model::MaybeDocumentMap;
 using model::Mutation;
 using model::MutationBatch;
 using model::MutationBatchResult;

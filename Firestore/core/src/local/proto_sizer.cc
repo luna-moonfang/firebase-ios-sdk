@@ -28,8 +28,8 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
+using model::Document;
 using model::DocumentKey;
-using model::MaybeDocument;
 using nanopb::ByteString;
 using nanopb::Message;
 

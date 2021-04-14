@@ -29,6 +29,10 @@
 namespace firebase {
 namespace firestore {
 
+namespace model {
+class DocumentMap;
+}
+
 namespace util {
 class Executor;
 }  // namespace util
@@ -45,14 +49,12 @@ class LevelDbRemoteDocumentCache : public RemoteDocumentCache {
                              LocalSerializer* serializer);
   ~LevelDbRemoteDocumentCache();
 
-  void Add(const model::MaybeDocument& document,
+  void Add(const model::Document& document,
            const model::SnapshotVersion& read_time) override;
   void Remove(const model::DocumentKey& key) override;
 
-  absl::optional<model::MaybeDocument> Get(
-      const model::DocumentKey& key) override;
-  model::OptionalMaybeDocumentMap GetAll(
-      const model::DocumentKeySet& keys) override;
+  model::Document Get(const model::DocumentKey& key) override;
+  model::DocumentMap GetAll(const model::DocumentKeySet& keys) override;
   model::DocumentMap GetMatching(
       const core::Query& query,
       const model::SnapshotVersion& since_read_time) override;
@@ -64,8 +66,8 @@ class LevelDbRemoteDocumentCache : public RemoteDocumentCache {
    */
   model::DocumentMap GetAllExisting(const model::DocumentKeySet& keys);
 
-  model::MaybeDocument DecodeMaybeDocument(absl::string_view encoded,
-                                           const model::DocumentKey& key);
+  model::Document DecodeMaybeDocument(absl::string_view encoded,
+                                      const model::DocumentKey& key);
 
   // The LevelDbRemoteDocumentCache instance is owned by LevelDbPersistence.
   LevelDbPersistence* db_;
